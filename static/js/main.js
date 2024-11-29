@@ -145,4 +145,17 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.toggle('hidden');
         });
     }
+
+    const checkbox = document.getElementById('change-credentials-checkbox');
+    const changeCredentialsForm = document.getElementById('change-credentials-form');
+
+    // Tampilkan atau sembunyikan form ganti username/password berdasarkan checkbox
+    checkbox.addEventListener('change', function () {
+        if (this.checked) {
+            changeCredentialsForm.classList.remove('hidden');
+        } else {
+            changeCredentialsForm.classList.add('hidden');
+        }
+    });
+    
 });

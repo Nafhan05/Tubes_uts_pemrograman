@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request
 from app import bcrypt, create_app, db
 from app.models import User
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, ChangePasswordForm, PersonalDataForm
 from flask_login import login_user, logout_user, login_required, current_user
-from datetime import timedelta
+from werkzeug.security import generate_password_hash
 
 # Membuat Blueprint
 routes = Blueprint('routes', __name__)
@@ -99,11 +99,41 @@ def result():
     # Logic for displaying test results
     return render_template('result.html', title='Hasil Cek')
 
+
+
+def load_user(user_id):
+    return User.query.get(int(user_id))  # Memuat user berdasarkan user_id
+
 @routes.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    # Logic for updating account details
-    return render_template('account.html', title='Account')
+    personal_data_form = PersonalDataForm()
+    password_change_form = ChangePasswordForm()
+
+    if request.method == 'POST':
+        # Memperbaharui data pribadi jika form personal data disubmit
+        if personal_data_form.validate_on_submit():
+            current_user.full_name = personal_data_form.full_name.data
+            current_user.nik = personal_data_form.nik.data
+            current_user.domicile = personal_data_form.domicile.data
+            current_user.phone = personal_data_form.phone.data
+            db.session.commit()
+            flash("Personal data updated successfully.", "success")
+        
+        # Memperbaharui password jika form password change disubmit
+        if password_change_form.validate_on_submit():
+            if password_change_form.password.data == password_change_form.confirm_password.data:
+                current_user.password = generate_password_hash(password_change_form.password.data)
+                db.session.commit()
+                flash("Password changed successfully.", "success")
+            else:
+                flash("Passwords do not match.", "danger")
+    
+    return render_template('account_personal_data.html', 
+                           personal_data_form=personal_data_form, 
+                           password_change_form=password_change_form)
+
+
 
 @routes.route('/')
 def default():

@@ -23,22 +23,21 @@ def create_app():
     app.config['SECRET_KEY'] = 'your_secret_key_here'
 
     # Mengatur durasi cookie remember me
-    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(seconds=10)  # Mengingat selama 7 hari
+    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(seconds=10)  # Mengingat selama 10 detik
 
     # Inisialisasi Ekstensi
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
 
-    # Definisikan fungsi user_loader untuk login manager
-    @login_manager.user_loader
-    def load_user(user_id):
-        from app.models import User
-        return User.query.get(int(user_id))
-
     # Import Blueprint dari routes.py dan daftarkan pada aplikasi
     from app.routes import routes
     app.register_blueprint(routes)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models import User
+        return User.query.get(int(user_id))  # Mengambil user berdasarkan user_id
 
     # Buat tabel-tabel di dalam context aplikasi
     with app.app_context():

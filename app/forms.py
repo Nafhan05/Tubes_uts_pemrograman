@@ -21,3 +21,15 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+class PersonalDataForm(FlaskForm):
+    full_name = StringField('Full Name', validators=[DataRequired()])
+    nik = StringField('NIK', validators=[DataRequired()])
+    domicile = StringField('Domicile', validators=[DataRequired()])
+    phone = StringField('Phone Number (WhatsApp)', validators=[DataRequired()])
+    submit = SubmitField('Save Personal Data')
+
+class ChangePasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Change Password')
