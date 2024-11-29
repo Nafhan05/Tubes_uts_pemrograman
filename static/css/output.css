@@ -1036,14 +1036,16 @@ video {
 
 #reservationDropdown {
   display: none;
-  /* Mulai dengan disembunyikan */
   opacity: 0;
   transform: scaleY(0);
-  /* Skala vertikal 0 artinya terkompres secara vertikal */
   transform-origin: top;
-  /* Animasi mulai dari bagian atas */
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-  /* Durasi animasi untuk opacity dan transform */
+}
+
+#reservationDropdown.show {
+  display: block;
+  opacity: 1;
+  transform: scaleY(1);
 }
 
 .hover\:bg-blue-100:hover {
@@ -1078,6 +1080,10 @@ video {
 
 .hover\:underline:hover {
   text-decoration-line: underline;
+}
+
+.hover\:underline:hover.reservation-link {
+  text-decoration: underline;
 }
 
 .focus\:border-blue-500:focus {

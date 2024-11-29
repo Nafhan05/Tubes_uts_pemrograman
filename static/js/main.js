@@ -1,5 +1,6 @@
 // main.js
 
+// Toggle Password Visibility
 function togglePassword(passwordId, iconId) {
     const passwordInput = document.getElementById(passwordId);
     const icon = document.getElementById(iconId);
@@ -17,8 +18,7 @@ function togglePassword(passwordId, iconId) {
     }
 }
 
-
-
+// Toggle Settings Dropdown
 function toggleSettingsDropdown() {
     const settingsDropdown = document.getElementById('settingsDropdown');
     const settingsIcon = document.getElementById('settingsIcon');
@@ -46,38 +46,52 @@ function toggleSettingsDropdown() {
 }
 
 
-    // Dropdown Menu Interaction for Reservation
-
+// Dropdown Menu Interaction for Reservation
 function toggleReservationDropdown() {
     const reservationDropdown = document.getElementById('reservationDropdown');
+    const reservationButton = document.getElementById('reservationButton');
     const reservationIcon = document.getElementById('reservationIcon');
 
-    if (reservationDropdown && reservationIcon) {
-        // Check if dropdown is visible
-        if (reservationDropdown.style.display === "block") {
-            // Hide dropdown with reverse animation
-            reservationDropdown.style.opacity = "0";
-            reservationDropdown.style.transform = "scaleY(0)";
-            setTimeout(() => {
-                reservationDropdown.style.display = "none";
-                reservationIcon.textContent = "▼"; // Change back to down arrow
-            }, 300); // Delay to match the CSS transition duration
+    // Toggle dropdown visibility on click (stay open if clicked)
+    reservationButton.addEventListener('click', function () {
+        if (reservationDropdown.classList.contains('show')) {
+            // Hide dropdown if already open
+            hideDropdown(reservationDropdown);
+            reservationIcon.textContent = "▼"; // Change back to down arrow
         } else {
-            // Show dropdown with animation
-            reservationDropdown.style.display = "block";
-            setTimeout(() => {
-                reservationDropdown.style.opacity = "1";
-                reservationDropdown.style.transform = "scaleY(1)";
-                // reservationIcon.textContent = "🔼"; // Change to up arrow when open
-            }, 10); // Slight delay to trigger transition
+            // Show dropdown if closed
+            showDropdown(reservationDropdown);
+            reservationIcon.textContent = "▲"; // Change to up arrow when open
         }
+    });
+
+    // Show dropdown with animation
+    function showDropdown(dropdown) {
+        dropdown.style.display = "block";
+        setTimeout(() => {
+            dropdown.classList.add('show');  // Add the 'show' class to trigger the animation
+            dropdown.style.opacity = "1";
+            dropdown.style.transform = "scaleY(1)";
+        }, 10);
+    }
+
+    // Hide dropdown with animation
+    function hideDropdown(dropdown) {
+        dropdown.style.opacity = "0";
+        dropdown.style.transform = "scaleY(0)";
+        setTimeout(() => {
+            dropdown.classList.remove('show');  // Remove the 'show' class to hide the dropdown
+            dropdown.style.display = "none";
+        }, 300);
     }
 }
 
 
 
+
 document.addEventListener('DOMContentLoaded', function () {
 
+    // Settings Button Listener
     const settingsButton = document.getElementById('settingsButton');
     if (settingsButton) {
         settingsButton.addEventListener('click', function () {
@@ -85,42 +99,38 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Reservation Button Listener
     const reservationButton = document.getElementById('reservationButton');
     if (reservationButton) {
-        reservationButton.addEventListener('click', function () {
-            toggleReservationDropdown();
-        });
+        toggleReservationDropdown();  // Initialize dropdown for reservation
     }
-    
-    // Fungsi validasi form login
+
+    // Form Validation for Login and Register
     const loginForm = document.querySelector('#loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
-            // Contoh validasi sederhana sebelum form dikirimkan
             const username = document.querySelector('[name="username"]').value.trim();
             const password = document.querySelector('[name="password"]').value.trim();
 
             if (username === '' || password === '') {
-                e.preventDefault(); // Mencegah pengiriman form
+                e.preventDefault();
                 alert('Please fill out all fields');
             }
         });
     }
 
-    // Fungsi validasi form registrasi
     const registerForm = document.querySelector('#registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', function (e) {
-            // Contoh validasi sederhana sebelum form dikirimkan
             const username = document.querySelector('[name="username"]').value.trim();
             const password = document.querySelector('[name="password"]').value.trim();
             const confirmPassword = document.querySelector('[name="confirm_password"]').value.trim();
 
             if (username === '' || password === '' || confirmPassword === '') {
-                e.preventDefault(); // Mencegah pengiriman form
+                e.preventDefault();
                 alert('Please fill out all fields');
             } else if (password !== confirmPassword) {
-                e.preventDefault(); // Mencegah pengiriman form
+                e.preventDefault();
                 alert('Passwords do not match');
             }
         });
@@ -135,12 +145,4 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.toggle('hidden');
         });
     }
-
-    // Event listener untuk semua tombol (contoh interaksi sederhana)
-    const submitButtons = document.querySelectorAll('.btn');
-    submitButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            console.log('Button clicked:', button);
-        });
-    });
 });

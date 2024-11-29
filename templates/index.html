@@ -17,7 +17,7 @@
               <div id="reservationDropdown" class="absolute mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
                   <a href="{{ url_for('routes.reservation_create') }}" class="block px-4 py-2 hover:bg-blue-100">Make an Appointment</a>
                   <a href="{{ url_for('routes.reservation_change') }}" class="block px-4 py-2 hover:bg-blue-100">Change Appointment</a>
-                  <a href="{{ url_for('routes.reservation_cancel') }}" class="block px-4 py-2 hover:bg-blue-100">Cancel Appointment</a>
+                  <a href="{{ url_for('routes.reservation_cancel') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Cancel Appointment</a>
               </div>
             </div>
             <a href="{{ url_for('routes.schedule') }}" class="hover:underline">Schedule available</a>
@@ -33,8 +33,8 @@
           <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
         </button>
         <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
-          <a href="{{ url_for('routes.account') }}" class="block px-4 py-2 hover:bg-blue-100">Akun dan Data Pribadi</a>
-          <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100">Logout</a>
+          <a href="{{ url_for('routes.account') }}" class="block px-4 py-2 hover:bg-blue-100">Account and Personal Data</a>
+          <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
         </div>
       </div>
     </div>
