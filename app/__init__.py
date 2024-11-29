@@ -1,13 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 import os
 from datetime import timedelta
 
+
 # Inisialisasi Ekstensi di luar fungsi create_app
 db = SQLAlchemy()
-bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'routes.login'  # Mengarahkan pengguna ke login jika belum login
 login_manager.login_message_category = 'info'
@@ -27,7 +26,6 @@ def create_app():
 
     # Inisialisasi Ekstensi
     db.init_app(app)
-    bcrypt.init_app(app)
     login_manager.init_app(app)
 
     # Import Blueprint dari routes.py dan daftarkan pada aplikasi

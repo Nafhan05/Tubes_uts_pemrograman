@@ -37,5 +37,14 @@
         opacity: 1;
         transform: scaleY(1);
     }
+    #reservationDate, #reservationMonth {
+      padding: 10px;
+      font-size: 16px;
+    }
+  
+    select#reservationTime {
+      padding: 10px;
+      font-size: 16px;
+    }
     
   }

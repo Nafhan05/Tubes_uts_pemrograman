@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 
 
@@ -33,3 +33,19 @@ class ChangePasswordForm(FlaskForm):
     password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Change Password')
+
+class ReservationForm(FlaskForm):
+    # Pilih Tanggal
+    reservationDate = SelectField('Choose Date', choices=[], validators=[DataRequired()])
+
+    # Pilih Waktu
+    reservationTime = SelectField('Choose Time', choices=[], validators=[DataRequired()])
+
+       # Boolean fields untuk cek kesehatan
+    tests1 = BooleanField('Blood Pressure Check')
+    tests2 = BooleanField('Cholesterol Check')
+    tests3 = BooleanField('Blood Sugar Test')
+    tests4 = BooleanField('X-ray')
+    tests5 = BooleanField('Urine Test')
+    
+    submit = SubmitField('Create Reservation')

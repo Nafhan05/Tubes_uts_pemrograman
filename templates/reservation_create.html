@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-custom-background bg-cover bg-center">
+  <header class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white shadow-md py-4 fixed w-full top-0 z-10">
+    <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
+      <div class="flex items-center space-x-8">
+        <a href="{{ url_for('routes.home') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
+        <nav class="flex space-x-6 items-center">
+            <a href="{{ url_for('routes.home') }}" class="hover:underline">Home</a>
+            <a href="{{ url_for('routes.reservation_create') }}" class="hover:underline">Make an Appointment</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-24 py-10">
+    <div class="container mx-auto px-6 bg-white bg-opacity-75 p-8 rounded shadow-md">
+      <h2 class="text-2xl font-bold text-blue-600 mb-6">Create Reservation</h2>
+
+      <!-- Tampilkan reservasi yang sudah ada, jika ada -->
+      {% if current_user.reservations %}
+        <div class="mb-4">
+          <h3 class="text-xl text-blue-600">Your Existing Reservation</h3>
+          <p><strong>Date:</strong> {{ current_user.reservations[0].reservation_date }}</p>
+          <p><strong>Time:</strong> {{ current_user.reservations[0].reservation_time }}</p>
+          <p><strong>Tests:</strong> {{ current_user.reservations[0].tests }}</p>
+
+          <!-- Tombol Update Reservation -->
+          <button class="w-full bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700 focus:outline-none cursor-pointer" id="updateReservationButton">
+            Update Reservation
+          </button>
+          
+          <!-- Tombol Cancel Reservation dengan konfirmasi -->
+          <button class="w-full bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 focus:outline-none cursor-pointer mt-4" id="cancelReservationButton">
+            Cancel Reservation
+          </button>
+        </div>
+      {% else %}
+        <!-- Jika tidak ada reservasi sebelumnya, tampilkan form untuk membuat reservasi -->
+        <form method="POST" action="">
+          {{ form.hidden_tag() }}
+
+          <!-- Tanggal -->
+          <div class="mb-4">
+            <label for="reservationDate" class="block text-sm font-medium text-gray-700">Choose Date</label>
+            <select name="reservationDate" id="reservationDate" class="form-input mt-1 block w-full">
+              {% for date in available_dates %}
+                <option value="{{ date }}">{{ date }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Waktu -->
+          <div class="mb-4">
+            <label for="reservationTime" class="block text-sm font-medium text-gray-700">Choose Time</label>
+            <select name="reservationTime" id="reservationTime" class="form-input mt-1 block w-full">
+              {% for time in available_times %}
+                <option value="{{ time }}">{{ time }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Tests -->
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Choose Tests</label>
+            <div>
+              <label>{{ form.tests1() }} Blood Pressure Check</label>
+            </div>
+            <div>
+              <label>{{ form.tests2() }} Cholesterol Check</label>
+            </div>
+            <div>
+              <label>{{ form.tests3() }} Blood Sugar Test</label>
+            </div>
+            <div>
+              <label>{{ form.tests4() }} X-ray</label>
+            </div>
+            <div>
+              <label>{{ form.tests5() }} Urine Test</label>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div>
+            <input type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none cursor-pointer" value="Create Reservation">
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+<script>
+  // Konfirmasi untuk membatalkan reservasi
+  document.getElementById('cancelReservationButton').addEventListener('click', function() {
+    if (confirm('Are you sure you want to cancel this reservation?')) {
+      // Jika ya, kirimkan permintaan untuk menghapus reservasi
+      window.location.href = "{{ url_for('routes.reservation_cancel') }}";
+    }
+  });
+
+  // Tombol Update Reservation (kalau sudah ada reservasi)
+  document.getElementById('updateReservationButton').addEventListener('click', function() {
+    window.location.href = "{{ url_for('routes.reservation_create') }}";  // Bawa ke halaman untuk memperbarui reservasi
+  });
+</script>
+
+{% endblock %}

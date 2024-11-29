@@ -45,7 +45,6 @@ function toggleSettingsDropdown() {
     }
 }
 
-
 // Dropdown Menu Interaction for Reservation
 function toggleReservationDropdown() {
     const reservationDropdown = document.getElementById('reservationDropdown');
@@ -86,17 +85,52 @@ function toggleReservationDropdown() {
     }
 }
 
+// Menampilkan notifikasi sukses
+function showSuccessNotification(message) {
+    const successNotification = document.getElementById('success-notification');
+    successNotification.innerText = message;
+    successNotification.classList.remove('hidden');
+    setTimeout(() => {
+        successNotification.classList.add('hidden');
+    }, 3000);
+}
 
+
+// Fungsi untuk menginisialisasi flatpickr pada elemen tanggal
+function initDatepicker() {
+    flatpickr("#reservationDate", {
+        enableTime: false,
+        dateFormat: "Y-m-d",
+        minDate: "today",
+    });
+}
+
+// Fungsi untuk menginisialisasi flatpickr pada elemen bulan
+function initMonthpicker() {
+    flatpickr("#reservationMonth", {
+        enableTime: false,
+        dateFormat: "F Y",
+        monthSelectorType: "static",
+    });
+}
+
+// Fungsi utama untuk menginisialisasi semua pengaturan flatpickr
+function initializePickers() {
+    initDatepicker();
+    initMonthpicker();
+}
 
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    
 
     // Settings Button Listener
     const settingsButton = document.getElementById('settingsButton');
     if (settingsButton) {
         settingsButton.addEventListener('click', function () {
             toggleSettingsDropdown();
-        });
+        })
     }
 
     // Reservation Button Listener
@@ -116,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 alert('Please fill out all fields');
             }
-        });
+        })
     }
 
     const registerForm = document.querySelector('#registerForm');
@@ -133,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 alert('Passwords do not match');
             }
-        });
+        })
     }
 
     // Toggle Sidebar for Mobile View
@@ -143,11 +177,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (toggleButton && sidebar) {
         toggleButton.addEventListener('click', () => {
             sidebar.classList.toggle('hidden');
-        });
+        })
     }
 
     const checkbox = document.getElementById('change-credentials-checkbox');
     const changeCredentialsForm = document.getElementById('change-credentials-form');
+    const personalDataForm = document.getElementById('personal-data-form');
+    const successNotification = document.getElementById('success-notification');
+    const errorNotification = document.getElementById('error-notification');
 
     // Tampilkan atau sembunyikan form ganti username/password berdasarkan checkbox
     checkbox.addEventListener('change', function () {
@@ -156,6 +193,33 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             changeCredentialsForm.classList.add('hidden');
         }
-    });
+    })
+
+    // Handle form submission untuk ganti data pribadi
+    personalDataForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        // Simulate saving data
+        setTimeout(function () {
+            showSuccessNotification("Personal data saved successfully!");
+        }, 500); // Simulate saving time
+
+        // Reset form setelah menyimpan
+        personalDataForm.reset();
+    })
+
+    // Show error notification jika mencoba ganti kredensial sebelum menyimpan data
+    const changePasswordForm = document.getElementById('change-credentials-form-submit');
+    changePasswordForm.addEventListener('submit', function (e) {
+        if (!checkbox.checked) {
+            e.preventDefault();
+            errorNotification.classList.remove('hidden');
+            setTimeout(function () {
+                errorNotification.classList.add('hidden');
+            }, 3000);  // Hide after 3 seconds
+        }
+
+    })
+    initializePickers();
     
 });
