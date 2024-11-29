@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    .rotate-90 {
+      transform: rotate(90deg);
+      transition: transform 0.3s ease-in-out; /* Rotasi 90 derajat dengan durasi transisi 0.3 detik */
+    }
+
+    #settingsIcon {
+      transition: transform 0.3s ease-in-out; /* Durasi animasi rotasi adalah 0,3 detik */
+    }
+
+    #settingsDropdown {
+      display: none; /* Mulai dengan disembunyikan */
+      opacity: 0;
+      transform: scaleY(0); /* Skala vertikal 0 artinya terkompres secara vertikal */
+      transform-origin: top; /* Animasi mulai dari bagian atas */
+      transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; /* Durasi animasi untuk opacity dan transform */
+    }
+
+    .reservation-link.underline {
+        text-decoration: underline;
+    }
+    
+    #reservationDropdown {
+      display: none;
+      opacity: 0;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+    
+    #reservationDropdown.show {
+        display: block;
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    #reservationDate, #reservationMonth {
+      padding: 10px;
+      font-size: 16px;
+    }
+  
+    select#reservationTime {
+      padding: 10px;
+      font-size: 16px;
+    }
+    
+  }
