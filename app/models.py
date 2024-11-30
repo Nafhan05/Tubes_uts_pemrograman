@@ -13,7 +13,6 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.username}')"
     
-
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Pastikan 'user.id'
@@ -23,3 +22,5 @@ class Reservation(db.Model):
 
     def __repr__(self):
         return f"Reservation('{self.id}', '{self.patient_id}', '{self.reservation_date}', '{self.reservation_time}')"
+    
+    

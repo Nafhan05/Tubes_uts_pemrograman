@@ -4,12 +4,37 @@
 <div class="min-h-screen bg-custom-background bg-cover bg-center">
   <header class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white shadow-md py-4 fixed w-full top-0 z-10">
     <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
+      <!-- Navigation Section -->
       <div class="flex items-center space-x-8">
         <a href="{{ url_for('routes.home') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
         <nav class="flex space-x-6 items-center">
-          <a href="{{ url_for('routes.home') }}" class="hover:underline">Home</a>
-          <a href="{{ url_for('routes.reservation_create') }}" class="hover:underline">Make an Appointment</a>
+            <a href="{{ url_for('routes.home') }}" class="hover:underline">Home</a>
+            <div class="relative">
+              <a href="#" id="reservationButton" class="text-white hover:underline">
+                  Reservation <span id="reservationIcon" class="ml-1">▼</span>
+              </a>
+              <div id="reservationDropdown" class="absolute mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
+                  <a href="{{ url_for('routes.reservation_create') }}" class="block px-4 py-2 hover:bg-blue-100">Make an Appointment</a>
+                  <a href="{{ url_for('routes.reservation_change') }}" class="block px-4 py-2 hover:bg-blue-100">Change Appointment</a>
+                  <a href="{{ url_for('routes.reservation_cancel') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Cancel Appointment</a>
+              </div>
+            </div>
+            <a href="{{ url_for('routes.available_schedule') }}" class="hover:underline">Schedule available</a>
+            <a href="{{ url_for('routes.result') }}" class="hover:underline">Results</a>
+            <a href="#" class="hover:underline">Contact us</a>
         </nav>
+      </div>
+
+
+      <!-- Setting Icon and Dropdown -->
+      <div class="relative">
+        <button id="settingsButton" class="focus:outline-none">
+          <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
+        </button>
+        <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
+          <a href="{{ url_for('routes.account') }}" class="block px-4 py-2 hover:bg-blue-100">Account and Personal Data</a>
+          <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
+        </div>
       </div>
     </div>
   </header>
@@ -34,21 +59,25 @@
 
         <!-- Pilihan tanggal -->
         <div class="mb-4">
-          <label for="reservationDate" class="block text-sm font-medium text-gray-700">Choose Date</label>
-          <select name="reservationDate" id="reservationDate" class="form-input mt-1 block w-full">
-            {% for date in available_dates %}
-              <option value="{{ date }}" {% if existing_reservation and existing_reservation.reservation_date == date %}selected{% endif %}>{{ date }}</option>
-            {% endfor %}
+          <label for="reservationDate" class="block text-sm font-medium text-gray-700 cursor-pointer">Choose Date</label>
+          <select name="reservationDate" id="reservationDate" class="form-input cursor-pointer">
+              <option value="">-- Select Date --</option>
+              {% for date in form.reservationDate.choices %}
+                  <option value="{{ date[0] }}" {% if date[0] == request.args.get('date', '') %}selected{% endif %}>
+                      {{ date[1] }}
+                  </option>
+              {% endfor %}
           </select>
         </div>
 
         <!-- Pilihan waktu -->
         <div class="mb-4">
           <label for="reservationTime" class="block text-sm font-medium text-gray-700">Choose Time</label>
-          <select name="reservationTime" id="reservationTime" class="form-input mt-1 block w-full">
-            {% for time in available_times %}
-              <option value="{{ time }}" {% if existing_reservation and existing_reservation.reservation_time == time %}selected{% endif %}>{{ time }}</option>
-            {% endfor %}
+          <select name="reservationTime" id="reservationTime" class="form-input cursor-pointer">
+              <option value="">-- Select Time --</option>
+              {% for time in form.reservationTime.choices %}
+                  <option value="{{ time[0] }}" {% if time[0] == request.args.get('time', '') %}selected{% endif %}>{{ time[1] }}</option>
+              {% endfor %}
           </select>
         </div>
 
@@ -56,28 +85,42 @@
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Choose Tests</label>
           <div>
-            <label><input type="checkbox" name="tests1" value="Blood Pressure Check" {% if 'Blood Pressure Check' in existing_reservation.tests %}checked{% endif %}> Blood Pressure Check</label>
+            <label><input type="checkbox" class = 'cursor-pointer' name="tests1" value="Blood Pressure Check"> Blood Pressure Check</label>
           </div>
           <div>
-            <label><input type="checkbox" name="tests2" value="Cholesterol Check" {% if 'Cholesterol Check' in existing_reservation.tests %}checked{% endif %}> Cholesterol Check</label>
+            <label><input type="checkbox" class = 'cursor-pointer' name="tests2" value="Cholesterol Check"> Cholesterol Check</label>
           </div>
           <div>
-            <label><input type="checkbox" name="tests3" value="Blood Sugar Test" {% if 'Blood Sugar Test' in existing_reservation.tests %}checked{% endif %}> Blood Sugar Test</label>
+            <label><input type="checkbox" class = 'cursor-pointer' name="tests3" value="Blood Sugar Test"> Blood Sugar Test</label>
           </div>
           <div>
-            <label><input type="checkbox" name="tests4" value="X-ray" {% if 'X-ray' in existing_reservation.tests %}checked{% endif %}> X-ray</label>
+            <label><input type="checkbox" class = 'cursor-pointer' name="tests4" value="X-ray"> X-ray</label>
           </div>
           <div>
-            <label><input type="checkbox" name="tests5" value="Urine Test" {% if 'Urine Test' in existing_reservation.tests %}checked{% endif %}> Urine Test</label>
+            <label><input type="checkbox" class = 'cursor-pointer' name="tests5" value="Urine Test"> Urine Test</label>
           </div>
         </div>
 
         <!-- Submit Button -->
         <div>
-          <input type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none cursor-pointer" value="{% if existing_reservation %}Change Reservation{% else %}Create Reservation{% endif %}">
+          <input type="submit" class="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none cursor-pointer" value="{% if existing_reservation %}Change Reservation{% else %}Create Reservation{% endif %}">
         </div>
       </form>
+      <p class="text-lg text-center text-gray-600 mt-4">
+        see the schedule available <a href="{{ url_for('routes.available_schedule') }}" class="text-blue-500 hover:text-blue-700">here</a>.
+    </p>
     </div>
   </main>
+  <script>
+    // Event listener untuk reload halaman dengan tanggal terpilih
+    document.getElementById('reservationDate').addEventListener('change', function () {
+        const selectedDate = this.value;
+        if (selectedDate) {
+            window.location.href = `?date=${selectedDate}`;
+        }
+    });
+  </script>
 </div>
+
+
 {% endblock %}

@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, url_for, flash, redirect, request, jsonify
+from flask import Blueprint, render_template, url_for, flash, redirect, request
 from app import db
 from app.models import User, Reservation
 from app.forms import RegistrationForm, LoginForm, ChangePasswordForm, PersonalDataForm, ReservationForm
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 # Membuat Blueprint
 routes = Blueprint('routes', __name__)
@@ -64,77 +65,90 @@ def login():
 @routes.route('/create_reservation', methods=['GET', 'POST'])
 @login_required
 def reservation_create():
-    # Mendapatkan waktu sekarang
     now = datetime.now()
-    current_hour = now.hour
-
-    # Jam buka dan tutup klinik
     clinic_open_hour = 8
     clinic_close_hour = 17
+    current_hour = now.hour
 
-    # Filter waktu dan tanggal berdasarkan jam sekarang
-    available_dates = []
-    available_times = []
-    if current_hour < clinic_close_hour:
-        # Jika saat ini sebelum jam tutup
-        for i in range(7):  # Menampilkan 7 hari mulai dari hari ini
-            available_dates.append((now + timedelta(days=i)).strftime('%Y-%m-%d'))
-        for hour in range(current_hour + 1, clinic_close_hour):
-            available_times.append(f"{hour}:00")
-    else:
-        # Jika sudah lewat jam tutup, mulai dari hari berikutnya
-        for i in range(1, 8):  # Menampilkan 7 hari mulai dari besok
-            available_dates.append((now + timedelta(days=i)).strftime('%Y-%m-%d'))
-        for hour in range(clinic_open_hour, clinic_close_hour):
-            available_times.append(f"{hour}:00")
+    # Fetch available dates (next 7 days)
 
-    # Menyiapkan form untuk reservasi
+
+    # Get selected date from the form or URL query
+    selected_date = request.args.get('date', None)
+
+    # selected_date = selected_date if selected_date else now.strftime('%Y-%m-%d')
+
+    # Determine available times based on selected date
+    if selected_date == now.strftime('%Y-%m-%d'):  # Today
+        if current_hour < clinic_close_hour:
+            available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+            available_times = [
+                f"{hour}:00" for hour in range(current_hour + 1, clinic_close_hour) if hour >= clinic_open_hour
+            ]
+        else:
+            available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1,8)]
+            # Jika sudah melewati jam tutup, tampilkan waktu untuk besok
+            available_times = [f"{hour}:00" for hour in range(clinic_open_hour, clinic_close_hour)]
+    else:  # Future dates
+        available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1,8)]
+        available_times = [f"{hour}:00" for hour in range(clinic_open_hour, clinic_close_hour)]
+
+    # Populate the form and handle POST
     form = ReservationForm()
     form.reservationDate.choices = [(date, date) for date in available_dates]
     form.reservationTime.choices = [(time, time) for time in available_times]
 
-    # Cek apakah pengguna sudah memiliki reservasi
+    # Fetch existing reservation if available
     existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
+    selected_time = request.args.get('time', None)
 
-    # Menangani form submit
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
         reservation_date = form.reservationDate.data
         reservation_time = form.reservationTime.data
-
+        
         # Menyaring jenis tes yang dipilih
         selected_tests = []
-        if request.form.get('tests1'):
+        if form.tests1.data:
             selected_tests.append('Blood Pressure Check')
-        if request.form.get('tests2'):
+        if form.tests2.data:
             selected_tests.append('Cholesterol Check')
-        if request.form.get('tests3'):
+        if form.tests3.data:
             selected_tests.append('Blood Sugar Test')
-        if request.form.get('tests4'):
+        if form.tests4.data:
             selected_tests.append('X-ray')
-        if request.form.get('tests5'):
+        if form.tests5.data:
             selected_tests.append('Urine Test')
-
-        if existing_reservation:
-            # Jika sudah ada reservasi, update reservasi
-            existing_reservation.reservation_date = reservation_date
-            existing_reservation.reservation_time = reservation_time
-            existing_reservation.tests = ','.join(selected_tests)
-            db.session.commit()
-            flash('Your reservation has been updated successfully!', 'success')
+        
+        # Validasi: pastikan semua kolom terisi
+        if (not selected_tests ) and (not selected_date) and (not selected_time):
+            flash("All columns and ticks must be filled in.", "danger")  # Flash error message
         else:
-            # Jika tidak ada reservasi, buat reservasi baru
-            new_reservation = Reservation(
-                patient_id=current_user.id,
-                reservation_date=reservation_date,
-                reservation_time=reservation_time,
-                tests=','.join(selected_tests)
-            )
-            db.session.add(new_reservation)
-            db.session.commit()
-            flash('Your reservation has been created successfully!', 'success')
+            existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
+            if existing_reservation:
+                # Jika sudah ada reservasi, update reservasi
+                existing_reservation.reservation_date = reservation_date
+                existing_reservation.reservation_time = reservation_time
+                existing_reservation.tests = ','.join(selected_tests)
+                db.session.commit()
+                flash('Your reservation has been updated successfully!', 'success')
+                
+            else:
+                # Jika tidak ada reservasi, buat reservasi baru
+                new_reservation = Reservation(
+                    patient_id=current_user.id,
+                    reservation_date=reservation_date,
+                    reservation_time=reservation_time,
+                    tests=','.join(selected_tests)
+                )
+                db.session.add(new_reservation)
+                db.session.commit()
+                flash('Your reservation has been created successfully!', 'success')
 
-        # Redirect ke halaman home setelah reservasi berhasil dibuat atau diupdate
-        return redirect(url_for('routes.home'))
+                # Redirect ke halaman home setelah reservasi berhasil dibuat atau diupdate
+                return redirect(url_for('routes.home'))
+    else:
+        print(f"Available times for {selected_date}: {available_times}")
+        print(f"Form validation failed: {form.errors}")
 
     # Render template dengan data yang diperlukan
     return render_template(
@@ -144,7 +158,6 @@ def reservation_create():
         available_times=available_times,
         existing_reservation=existing_reservation
     )
-
 
 @routes.route('/reservation/change', methods=['GET', 'POST'])
 @login_required
@@ -172,11 +185,64 @@ def reservation_cancel():
     return redirect(url_for('routes.home'))
 
 
+
 @routes.route('/schedule', methods=['GET'])
 @login_required
-def schedule():
-    # Logic for displaying the schedule and available personnel
-    return render_template('schedule.html', title='Jadwal pelayanan')
+def available_schedule():
+    now = datetime.now()
+    clinic_open_hour = 8
+    clinic_close_hour = 17
+    current_hour = now.hour
+
+    selected_date = request.args.get('date', None)
+    selected_time = request.args.get('time', None)
+    # selected_date = selected_date if selected_date else now.strftime('%Y-%m-%d')
+
+    # Determine available times based on selected date
+    if selected_date == now.strftime('%Y-%m-%d'):  # Today
+        if current_hour < clinic_close_hour:
+            available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
+            available_times = [
+                f"{hour}:00" for hour in range(current_hour + 1, clinic_close_hour) if hour >= clinic_open_hour
+            ]
+        else:
+            available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1,8)]
+            # Jika sudah melewati jam tutup, tampilkan waktu untuk besok
+            available_times = [f"{hour}:00" for hour in range(clinic_open_hour, clinic_close_hour)]
+    else:  # Future dates
+        available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1,8)]
+        available_times = [f"{hour}:00" for hour in range(clinic_open_hour, clinic_close_hour)]
+
+
+    # Menentukan waktu yang tersedia berdasarkan tanggal yang dipilih
+
+
+    # Hanya menampilkan waktu yang valid
+    schedule = {}
+    for date in available_dates:
+        # Ambil semua reservasi untuk tanggal tersebut
+        reserved_slots = Reservation.query.filter_by(reservation_date=date).all()
+        # Tentukan slot yang sudah terisi
+        reserved_times = [reservation.reservation_time for reservation in reserved_slots]
+
+        available_times = {}
+        for hour in range(clinic_open_hour, clinic_close_hour):
+            time = f"{hour}:00"
+            # Hitung jumlah slot yang terisi untuk setiap jam
+            slots_taken = reserved_times.count(time)
+            if slots_taken < 2:  # Asumsi 2 slot tersedia per jam
+                available_times[time] = 2 - slots_taken  # Slot yang tersedia
+            else:
+                available_times[time] = 0  # Fully booked
+
+        schedule[date] = available_times
+
+    return render_template(
+        'schedule.html',
+        schedule=schedule,
+        selected_date=selected_date,
+        selected_time=selected_time
+    )
 
 
 @routes.route('/result', methods=['GET'])

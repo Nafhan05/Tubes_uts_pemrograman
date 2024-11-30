@@ -35,17 +35,26 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField('Change Password')
 
 class ReservationForm(FlaskForm):
-    # Pilih Tanggal
-    reservationDate = SelectField('Choose Date', choices=[], validators=[DataRequired()])
+    # Pilih Tanggal (Dropdown)
+    reservationDate = SelectField(
+        'Choose Date', 
+        choices=[],  # Diisi di route (dinamis)
+        validators=[DataRequired()]
+    )
 
-    # Pilih Waktu
-    reservationTime = SelectField('Choose Time', choices=[], validators=[DataRequired()])
+    # Pilih Waktu (Dropdown)
+    reservationTime = SelectField(
+        'Choose Time', 
+        choices=[],  # Diisi di route (dinamis)
+        validators=[DataRequired()]
+    )
 
-       # Boolean fields untuk cek kesehatan
+    # Checkbox untuk tes kesehatan
     tests1 = BooleanField('Blood Pressure Check')
     tests2 = BooleanField('Cholesterol Check')
     tests3 = BooleanField('Blood Sugar Test')
     tests4 = BooleanField('X-ray')
     tests5 = BooleanField('Urine Test')
-    
+
+    # Tombol Submit
     submit = SubmitField('Create Reservation')

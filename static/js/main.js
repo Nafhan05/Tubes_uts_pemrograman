@@ -192,7 +192,9 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.toggle('hidden');
         })
     }
+    
 
+    this.form.submit(); // Submit form untuk memperbarui waktu secara otomatis
 
     const checkbox = document.getElementById('change-credentials-checkbox');
     const changeCredentialsForm = document.getElementById('change-credentials-form');
