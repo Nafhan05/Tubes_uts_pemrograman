@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, flash, redirect, request
+from flask import Blueprint, render_template, url_for, flash, redirect, request, jsonify
 from app import db
 from app.models import User, Reservation
 from app.forms import RegistrationForm, LoginForm, ChangePasswordForm, PersonalDataForm, ReservationForm
@@ -61,21 +61,6 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
-@routes.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('You have been logged out.', 'info')
-    return redirect(url_for('routes.login'))
-
-
-@routes.route("/home")
-@login_required
-def home():
-    remove_expired_reservations()  # Hapus reservasi yang kedaluwarsa
-    return render_template('index.html', title='Home')
-
-
 @routes.route('/create_reservation', methods=['GET', 'POST'])
 @login_required
 def reservation_create():
@@ -83,46 +68,51 @@ def reservation_create():
     now = datetime.now()
     current_hour = now.hour
 
-    # Jam buka dan tutup klinik (misalnya jam buka 08:00, tutup 17:00)
+    # Jam buka dan tutup klinik
     clinic_open_hour = 8
     clinic_close_hour = 17
 
-    # Filter waktu berdasarkan jam sekarang
+    # Filter waktu dan tanggal berdasarkan jam sekarang
+    available_dates = []
     available_times = []
     if current_hour < clinic_close_hour:
-        # Daftar tanggal untuk minggu depan (7 hari ke depan)
-        available_dates = []
+        # Jika saat ini sebelum jam tutup
         for i in range(7):  # Menampilkan 7 hari mulai dari hari ini
             available_dates.append((now + timedelta(days=i)).strftime('%Y-%m-%d'))
-        # Jika saat ini sebelum jam tutup, tampilkan jam yang tersisa pada hari ini
         for hour in range(current_hour + 1, clinic_close_hour):
             available_times.append(f"{hour}:00")
     else:
-        # Jika sudah lewat jam tutup, tampilkan waktu di hari berikutnya
-        available_dates = []
-        for i in range(1, 8):  # Menampilkan 7 hari mulai dari hari ini
+        # Jika sudah lewat jam tutup, mulai dari hari berikutnya
+        for i in range(1, 8):  # Menampilkan 7 hari mulai dari besok
             available_dates.append((now + timedelta(days=i)).strftime('%Y-%m-%d'))
         for hour in range(clinic_open_hour, clinic_close_hour):
             available_times.append(f"{hour}:00")
 
-    # Menghasilkan daftar bulan untuk dropdown bulan (bulan ini dan bulan depan)
-    available_months = [now.strftime('%Y-%m'), (now + timedelta(weeks=1)).strftime('%Y-%m')]
-
-    # Menyiapkan form untuk reservation
+    # Menyiapkan form untuk reservasi
     form = ReservationForm()
+    form.reservationDate.choices = [(date, date) for date in available_dates]
+    form.reservationTime.choices = [(time, time) for time in available_times]
 
-    # Cek apakah sudah ada reservasi
+    # Cek apakah pengguna sudah memiliki reservasi
     existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
 
-    # Menangani form submit jika ada
-    if request.method == 'POST' and form.validate_on_submit():
-        # Mengambil data dari form
+    # Menangani form submit
+    if form.validate_on_submit():
         reservation_date = form.reservationDate.data
         reservation_time = form.reservationTime.data
-        tests = form.tests.data  # Ini akan menjadi list True/False
 
         # Menyaring jenis tes yang dipilih
-        selected_tests = [test.label for test, selected in zip(form.tests, tests) if selected]
+        selected_tests = []
+        if request.form.get('tests1'):
+            selected_tests.append('Blood Pressure Check')
+        if request.form.get('tests2'):
+            selected_tests.append('Cholesterol Check')
+        if request.form.get('tests3'):
+            selected_tests.append('Blood Sugar Test')
+        if request.form.get('tests4'):
+            selected_tests.append('X-ray')
+        if request.form.get('tests5'):
+            selected_tests.append('Urine Test')
 
         if existing_reservation:
             # Jika sudah ada reservasi, update reservasi
@@ -134,30 +124,37 @@ def reservation_create():
         else:
             # Jika tidak ada reservasi, buat reservasi baru
             new_reservation = Reservation(
-                patient_id=current_user.id,  # Mengambil ID pengguna yang sedang login
+                patient_id=current_user.id,
                 reservation_date=reservation_date,
                 reservation_time=reservation_time,
-                tests=','.join(selected_tests)  # Menyimpan jenis cek dalam format string
+                tests=','.join(selected_tests)
             )
             db.session.add(new_reservation)
             db.session.commit()
             flash('Your reservation has been created successfully!', 'success')
 
+        # Redirect ke halaman home setelah reservasi berhasil dibuat atau diupdate
         return redirect(url_for('routes.home'))
 
-    return render_template('reservation_create.html', 
-                           form=form,  # Kirimkan form ke template
-                           available_dates=available_dates, 
-                           available_times=available_times,
-                           available_months=available_months, 
-                           existing_reservation=existing_reservation)
+    # Render template dengan data yang diperlukan
+    return render_template(
+        'reservation_create.html',
+        form=form,
+        available_dates=available_dates,
+        available_times=available_times,
+        existing_reservation=existing_reservation
+    )
+
 
 @routes.route('/reservation/change', methods=['GET', 'POST'])
 @login_required
 def reservation_change():
-    # Logic for updating a reservation
-    flash('Reservation updated successfully!', 'success')
-    return redirect(url_for('routes.home'))
+    existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
+    if existing_reservation:
+        return redirect(url_for('routes.reservation_create'))
+    else:
+        flash('You have not made any reservations')
+        return redirect(url_for('routes.home'))
 
 
 @routes.route('/reservation/cancel', methods=['GET', 'POST'])
@@ -165,7 +162,6 @@ def reservation_change():
 def reservation_cancel():
     # Cek apakah ada reservasi untuk dihapus
     existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
-
     if existing_reservation:
         db.session.delete(existing_reservation)
         db.session.commit()
@@ -236,6 +232,19 @@ def account():
                            personal_data_form=personal_data_form, 
                            password_change_form=password_change_form)
 
+@routes.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('routes.login'))
+
+
+@routes.route("/home")
+@login_required
+def home():
+    remove_expired_reservations()  # Hapus reservasi yang kedaluwarsa
+    return render_template('index.html', title='Home')
 
 @routes.route('/')
 def default():

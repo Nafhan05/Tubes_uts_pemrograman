@@ -6,6 +6,31 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>{{ title }}</title>
+    <style>
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-10px);
+            z-index: 1000;
+        }
+
+        #notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #notification.error {
+            background-color: #FF4F4F;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <header>
@@ -22,6 +47,32 @@
     <footer class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white text-center p-4 mt-8">
         <p>Laboratorium Clinic Health+ Management © 2024</p>
     </footer>
+
+    <!-- Notification Element -->
+    <div id="notification" class="hidden fixed top-5 right-5 py-2 px-4 rounded shadow">
+        <p id="notification-message"></p>
+    </div>
+
+    <!-- Include main.js -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Flash Messages Handler -->
+    <script>
+        // Handle Flask flash messages
+        const flashMessage = "{{ get_flashed_messages()[0] if get_flashed_messages() else '' }}";
+        const flashCategory = "{{ get_flashed_messages(with_categories=True)[0][0] if get_flashed_messages(with_categories=True) else 'success' }}";
+
+        if (flashMessage) {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notification-message');
+
+            notificationMessage.textContent = flashMessage;
+            notification.className = `show ${flashCategory === 'success' ? '' : 'error'}`;
+
+            setTimeout(() => {
+                notification.className = 'hidden';
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

@@ -46,5 +46,34 @@
       padding: 10px;
       font-size: 16px;
     }
+
+    #notification {
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translateY(-10px);
+      z-index: 1000;
+    }
     
+    #notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .flash-message {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem; /* Text-sm */
+      display: block;
+    }
+    .flash-success {
+        background-color: #d1fae5; /* Green-100 */
+        border-left: 4px solid #10b981; /* Green-500 */
+        color: #065f46; /* Green-700 */
+    }
+    .flash-danger {
+        background-color: #fee2e2; /* Red-100 */
+        border-left: 4px solid #ef4444; /* Red-500 */
+        color: #991b1b; /* Red-700 */
+    }
+      
   }

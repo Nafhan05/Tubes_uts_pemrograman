@@ -121,9 +121,22 @@ function initializePickers() {
 }
 
 
-document.addEventListener('DOMContentLoaded', function () {
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const notificationMessage = document.getElementById('notification-message');
 
-    
+    // Ubah pesan dan warna berdasarkan tipe
+    notificationMessage.textContent = message;
+    notification.className = `fixed top-5 right-5 py-2 px-4 rounded shadow ${type === 'success' ? 'bg-blue-600' : 'bg-red-600'} show`;
+
+    // Sembunyikan notifikasi setelah beberapa detik
+    setTimeout(() => {
+        notification.className = 'hidden';
+    }, 3000);
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
 
     // Settings Button Listener
     const settingsButton = document.getElementById('settingsButton');
@@ -179,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.toggle('hidden');
         })
     }
+
 
     const checkbox = document.getElementById('change-credentials-checkbox');
     const changeCredentialsForm = document.getElementById('change-credentials-form');
