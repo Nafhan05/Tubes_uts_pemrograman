@@ -1,0 +1,48 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-custom-background bg-cover bg-center">
+  <!-- Dashboard Section -->
+  <header class="bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white  shadow-md py-4 fixed w-full top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
+            <!-- Navigation Section -->
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('routes.home_admin') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
+                <nav class="flex space-x-6 items-center">
+                    <a href="{{ url_for('routes.home_admin') }}" class="hover:underline">Home</a>
+                    <div class="relative">
+                    </div>
+                        <a href="{{ url_for('routes.database') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Database</a>
+                    <a href="{{ url_for('routes.chat_admin') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Chat</a>
+                </nav>
+            </div>
+            <div class="relative">
+                <button id="settingsButton" class="focus:outline-none">
+                  <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
+                </button>
+                <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
+                  <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
+                </div>
+              </div>
+        </div>
+  </header>
+
+  <!-- Main Content Section -->
+  <main class="pt-24 py-10">
+    <div class="container mx-auto px-6 bg-white bg-opacity-75 p-8 rounded shadow-md">
+      <div class="flex flex-wrap">
+          <div class="w-full lg:w-2/3 pr-0 lg:pr-8 mb-8 lg:mb-0">
+            <div class="bg-white p-8 rounded shadow-md">
+              <h2 class="text-4xl font-bold text-green-500 mb-2">Welcome to the admin dashboard. Here you can manage the database and view chat interactions</h2>
+              <p class="text-red-500 font-bold mb-0">JANGAN MEMASUKAN DATA PRIBADI ASLI APAPUN DI WEB INI!!!</p>
+              <p class="text-gray-700 font-bold mb-8">Web ini merupakan project pemenuhan tugas mata kuliah</p>
+            </div>
+          </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+<!-- <footer class="bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white text-center p-4 mt-8">
+    <p>Laboratorium Clinic Health+ Management © 2024</p>
+</footer> -->

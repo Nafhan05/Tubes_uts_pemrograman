@@ -34,7 +34,7 @@
 </head>
 <body class="bg-gray-100">
     <header>
-        <nav class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white p-4 text-white">
+        <nav class=" bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white p-4 text-white">
             <div class="container mx-auto">
                 <h1 class="text-2xl">Lab Clinic Health+ Management</h1>
             </div>
@@ -44,7 +44,7 @@
         {% block content %}
         {% endblock %}
     </main>
-    <footer class="text-white text-center p-4 mt-8 bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600">
+    <footer class="text-white text-center p-4 mt-8  bg-gradient-to-r from-green-500 via-yellow-500 to-green-700">
         <p>Laboratorium Clinic Health+ Management © 2024</p>
     </footer>
 
@@ -76,11 +76,10 @@
         // setInterval(() => {
         //     location.reload();
         // }, 5000);  // Refresh setiap 5 detik
-        
-        const socket = io.connect('http://127.0.0.1:5000');  // Sesuaikan dengan URL aplikasi Anda
 
-        // Kirim pesan saat tombol diklik
-        document.querySelector('button').addEventListener('click', function() {
+
+                // Kirim pesan saat tombol diklik
+                document.querySelector('button').addEventListener('click', function() {
             const messageInput = document.querySelector('input[type="text"]');
             const message = messageInput.value;
             

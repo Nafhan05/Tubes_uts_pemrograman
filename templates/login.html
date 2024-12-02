@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-blue-100">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold text-blue-600 text-center mb-6">Login to Your Account</h2>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="text-{{ 'red-500' if category == 'danger' else 'green-500' }} text-sm mt-1">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form id="loginForm" method="POST" action="{{ url_for('routes.login') }}">
+            {{ form.hidden_tag() }}
+
+            <!-- Username Field -->
+            <div class="mb-4">
+                {{ form.username.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.username(class="form-input mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder="Enter your username") }}
+                {% if form.username.errors %}
+                    <div class="text-red-500 text-sm mt-1">
+                        {% for error in form.username.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-4 relative">
+                {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.password(class="form-input mt-1 block w-full pr-12 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder="Enter your password", id="passwordInput") }}
+                <span id="togglePassword" onclick="togglePassword('passwordInput', 'togglePassword')" class="fa fa-eye absolute right-3 cursor-pointer" style="top: 29px;"></span>
+                {% if form.password.errors %}
+                    <div class="text-red-500 text-sm mt-1">
+                        {% for error in form.password.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Remember Me Checkbox -->
+            <div class="mb-4 flex items-center">
+                {{ form.remember(class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out") }}
+                {{ form.remember.label(class="ml-2 block text-sm text-gray-900") }}
+            </div>
+
+            <!-- Submit Button -->
+            <div>
+                <input type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-800 cursor-pointer" value="Login">
+            </div>
+        </form>
+
+        <!-- Registration Link -->
+        <p class="text-sm text-center text-gray-600 mt-4">
+            Don't have an account? <a href="{{ url_for('routes.register') }}" class="text-blue-500 hover:text-blue-700">Register here</a>.
+        </p>
+    </div>
+</div>
+{% endblock %}
