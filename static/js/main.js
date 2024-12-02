@@ -216,25 +216,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-
-// Validasi form sebelum submit
-function validateForm() {
-    const fullName = document.getElementById('full_name').value;
-    const nik = document.getElementById('nik').value;
-    const domicile = document.getElementById('domicile').value;
-    const phone = document.getElementById('phone').value;
-
-    // Pastikan semua kolom terisi
-    if (!fullName || !nik || !domicile || !phone) {
-        alert('All fields must be filled out!');
-        return false;
-    }
-
-    // Jika semua validasi berhasil, simpan data ke localStorage
-    savePersonalDataToLocalStorage();
-    return true;
-}
-
 // Event listener untuk form submit
 document.getElementById('personalDataForm').addEventListener('submit', function (e) {
     if (validateForm()) {
