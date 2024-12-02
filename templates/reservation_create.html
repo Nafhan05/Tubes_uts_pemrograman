@@ -60,23 +60,26 @@
         <div class="mb-4">
           <label for="reservationDate" class="block text-sm font-medium text-gray-700 cursor-pointer">Choose Date</label>
           <select name="reservationDate" id="reservationDate" class="form-input cursor-pointer">
-              <option value="">-- Select Date --</option>
-              {% for date in form.reservationDate.choices %}
-                  <option value="{{ date[0] }}" {% if date[0] == request.args.get('date', '') %}selected{% endif %}>
-                      {{ date[1] }}
-                  </option>
-              {% endfor %}
+            <option value="">-- Select Date --</option>
+            {% for date in form.reservationDate.choices %}
+                <option value="{{ date[0] }}" {% if date[0] == request.args.get('date', '') %}selected{% endif %}>
+                    {{ date[1] }}
+                </option>
+            {% endfor %}
           </select>
+          {% for tests in selected_tests %}
+            <label>tests[0]</label>
+          {% endfor %}
         </div>
 
         <!-- Pilihan waktu -->
         <div class="mb-4">
           <label for="reservationTime" class="block text-sm font-medium text-gray-700">Choose Time</label>
           <select name="reservationTime" id="reservationTime" class="form-input cursor-pointer">
-              <option value="">-- Select Time --</option>
-              {% for time in form.reservationTime.choices %}
-                  <option value="{{ time[0] }}" {% if time[0] == request.args.get('time', '') %}selected{% endif %}>{{ time[1] }}</option>
-              {% endfor %}
+            <option value="">-- Select Time --</option>
+            {% for time in form.reservationTime.choices %}
+                <option value="{{ time[0] }}" {% if time[0] == request.args.get('time', '') %}selected{% endif %}>{{ time[1] }}</option>
+            {% endfor %}
           </select>
         </div>
 
@@ -84,30 +87,47 @@
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700">Choose Tests</label>
           <div>
-            <label><input type="checkbox" class = 'cursor-pointer' name="tests1" value="Blood Pressure Check"> Blood Pressure Check</label>
+            <label>
+              <input type="checkbox" class="cursor-pointer" name="tests1" value="Blood Pressure Check"
+              {% if 'Blood Pressure Check' in selected_tests %} checked {% endif %} > Blood Pressure Check
+            </label>
           </div>
           <div>
-            <label><input type="checkbox" class = 'cursor-pointer' name="tests2" value="Cholesterol Check"> Cholesterol Check</label>
+            <label>
+              <input type="checkbox" class="cursor-pointer" name="tests2" value="Cholesterol Check"
+              {% if form.tests2.data %}checked{% endif %}> Cholesterol Check
+            </label>
           </div>
           <div>
-            <label><input type="checkbox" class = 'cursor-pointer' name="tests3" value="Blood Sugar Test"> Blood Sugar Test</label>
+            <label>
+              <input type="checkbox" class="cursor-pointer" name="tests3" value="Blood Sugar Test"
+              {% if form.tests3.data %}checked{% endif %}> Blood Sugar Test
+            </label>
           </div>
           <div>
-            <label><input type="checkbox" class = 'cursor-pointer' name="tests4" value="X-ray"> X-ray</label>
+            <label>
+              <input type="checkbox" class="cursor-pointer" name="tests4" value="X-ray"
+              {% if form.tests4.data %}checked{% endif %}> X-ray
+            </label>
           </div>
           <div>
-            <label><input type="checkbox" class = 'cursor-pointer' name="tests5" value="Urine Test"> Urine Test</label>
+            <label>
+              <input type="checkbox" class="cursor-pointer" name="tests5" value="Urine Test"
+              {% if form.tests5.data %}checked{% endif %}> Urine Test
+            </label>
           </div>
         </div>
-
         <!-- Submit Button -->
         <div>
           <input type="submit" class="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none cursor-pointer" value="{% if existing_reservation %}Change Reservation{% else %}Create Reservation{% endif %}">
         </div>
       </form>
       <p class="text-lg text-center text-gray-600 mt-4">
-        see the schedule available <a href="{{ url_for('routes.available_schedule') }}" class="text-blue-500 hover:text-blue-700">here</a>.
-    </p>
+        see the schedule available <a href="{{ url_for('routes.available_schedule') }}" class="text-blue-500 hover:text-blue-700">here</a></p>
+      {% if personal_data_warning %}
+        <p class="text-lg text-center text-gray-600 mt-4">
+          Fill in your personal data first <a href="{{ url_for('routes.personal_data') }}" class="text-blue-500 hover:text-blue-700">here</a></p>
+      {% endif %}
     </div>
   </main>
   <script>

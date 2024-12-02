@@ -1358,15 +1358,6 @@ select#reservationTime {
   /* Posisi di kiri */
 }
 
-.read-status {
-  font-size: 0.8em;
-  /* Ukuran font status */
-  color: rgb(0, 0, 0);
-  /* Warna teks status */
-  float: right;
-  /* Posisikan di pojok kanan bawah */
-}
-
 .hover\:bg-blue-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(219 234 254 / var(--tw-bg-opacity, 1));

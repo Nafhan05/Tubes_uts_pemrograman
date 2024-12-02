@@ -89,45 +89,43 @@ def login():
 @routes.route('/create_reservation', methods=['GET', 'POST'])
 @login_required
 def reservation_create():
+    # Cek apakah pasien sudah mengisi data pribadi
+    personal_data = PersonalData.query.filter_by(user_id=current_user.id).first()
+    if not personal_data:
+        personal_data_warning = True
+        flash("Fill in your personal data before create reservation", "warning")
+    else:
+        personal_data_warning = False
+ 
     now = datetime.now()
     clinic_open_hour = 8
     clinic_close_hour = 17
     current_hour = now.hour
 
     # Fetch available dates (next 7 days)
-
-
-    # Get selected date from the form or URL query
     selected_date = request.args.get('date', None)
-
     selected_date = selected_date if selected_date else now.strftime('%Y-%m-%d')
+    selected_time = request.args.get('time', None)
 
-    # Determine available times based on selected date
     if selected_date == now.strftime('%Y-%m-%d'):  # Today
         if current_hour < clinic_close_hour:
             available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7)]
-            available_times = [
-                f"{hour}:00" for hour in range(current_hour + 1, clinic_close_hour) if hour >= clinic_open_hour
-            ]
+            available_times = [f"{hour}:00" for hour in range(current_hour + 1, clinic_close_hour) if hour >= clinic_open_hour]
         else:
-            available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1,8)]
-            # Jika sudah melewati jam tutup, tampilkan waktu untuk besok
+            available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, 8)]
             available_times = [f"{hour}:00" for hour in range(clinic_open_hour, clinic_close_hour)]
     else:  # Future dates
-        available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1,8)]
+        available_dates = [(now + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, 8)]
         available_times = [f"{hour}:00" for hour in range(clinic_open_hour, clinic_close_hour)]
 
-    # Populate the form and handle POST
     form = ReservationForm()
     form.reservationDate.choices = [(date, date) for date in available_dates]
     form.reservationTime.choices = [(time, time) for time in available_times]
 
     # Fetch existing reservation if available
     existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
-    
-    selected_time = request.args.get('time', None)
 
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST':
         reservation_date = form.reservationDate.data
         reservation_time = form.reservationTime.data
         
@@ -145,11 +143,10 @@ def reservation_create():
             selected_tests.append('Urine Test')
         
         # Validasi: pastikan semua kolom terisi
-        if (not selected_tests ) and (not selected_date) and (not selected_time):
+        if not reservation_date or  reservation_date == '-- Select Date --' or not reservation_time or reservation_time == '-- Select Time --' or not selected_tests:
             flash("All columns and ticks must be filled in.", "danger")  # Flash error message
+            return redirect(url_for('routes.reservation_create', date=reservation_date, time=reservation_time, selected_test= selected_tests))
         else:
-            existing_reservation = Reservation.query.filter_by(patient_id=current_user.id).first()
-            print(f"Fetching personal data for user_id: {current_user.id}")  # Debug
             if existing_reservation:
                 # Jika sudah ada reservasi, update reservasi
                 existing_reservation.reservation_date = reservation_date
@@ -157,7 +154,6 @@ def reservation_create():
                 existing_reservation.tests = ','.join(selected_tests)
                 db.session.commit()
                 flash('Your reservation has been updated successfully!', 'success')
-                
             else:
                 # Jika tidak ada reservasi, buat reservasi baru
                 new_reservation = Reservation(
@@ -173,14 +169,15 @@ def reservation_create():
                 # Redirect ke halaman home setelah reservasi berhasil dibuat atau diupdate
                 return redirect(url_for('routes.home'))
     
-    # Render template dengan data yang diperlukan
     return render_template(
         'reservation_create.html',
         form=form,
         available_dates=available_dates,
         available_times=available_times,
-        existing_reservation=existing_reservation
+        existing_reservation=existing_reservation,
+        personal_data_warning=personal_data_warning
     )
+
 
 @routes.route('/reservation/change', methods=['GET', 'POST'])
 @login_required
