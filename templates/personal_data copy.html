@@ -2,29 +2,28 @@
 
 {% block content %}
 <div class="min-h-screen bg-custom-background bg-cover bg-center">
-    <!-- Dashboard Section -->
     <header class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white shadow-md py-4 fixed w-full top-0 z-10">
         <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
           <!-- Navigation Section -->
-          <div class="flex items-center space-x-8">
-            <a href="{{ url_for('routes.home') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
-            <nav class="flex space-x-6 items-center">
-                <a href="{{ url_for('routes.home') }}" class="hover:underline">Home</a>
-                <div class="relative">
-                  <a href="#" id="reservationButton" class="text-white hover:underline">
-                      Reservation <span id="reservationIcon" class="ml-1">▼</span>
-                  </a>
-                  <div id="reservationDropdown" class="absolute mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
-                      <a href="{{ url_for('routes.reservation_create') }}" class="block px-4 py-2 hover:bg-blue-100">Make an Appointment</a>
-                      <a href="{{ url_for('routes.reservation_change') }}" class="block px-4 py-2 hover:bg-blue-100">Change Appointment</a>
-                      <a href="{{ url_for('routes.reservation_cancel') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Cancel Appointment</a>
-                  </div>
-                </div>
-                <a href="{{ url_for('routes.schedule') }}" class="hover:underline">Schedule available</a>
-                <a href="{{ url_for('routes.result') }}" class="hover:underline">Results</a>
-                <a href="#" class="hover:underline">Contact us</a>
-            </nav>
-          </div>
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('routes.home') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
+                <nav class="flex space-x-6 items-center">
+                    <a href="{{ url_for('routes.home') }}" class="hover:underline">Home</a>
+                    <div class="relative">
+                    <a href="#" id="reservationButton" class="text-white hover:underline">
+                        Reservation <span id="reservationIcon" class="ml-1">▼</span>
+                    </a>
+                    <div id="reservationDropdown" class="absolute mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
+                        <a href="{{ url_for('routes.reservation_create') }}" class="block px-4 py-2 hover:bg-blue-100">Make an Appointment</a>
+                        <a href="{{ url_for('routes.reservation_change') }}" class="block px-4 py-2 hover:bg-blue-100">Change Appointment</a>
+                        <a href="{{ url_for('routes.reservation_cancel') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Cancel Appointment</a>
+                    </div>
+                    </div>
+                    <a href="{{ url_for('routes.available_schedule') }}" class="hover:underline">Schedule available</a>
+                    <a href="{{ url_for('routes.result') }}" class="hover:underline">Results</a>
+                    <a href="#" class="hover:underline">Contact us</a>
+                </nav>
+            </div>
     
     
           <!-- Setting Icon and Dropdown -->
@@ -33,10 +32,10 @@
               <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
             </button>
             <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
-              <a href="{{ url_for('routes.account') }}" class="block px-4 py-2 hover:bg-blue-100">Account and Personal Data</a>
+              <a href="{{ url_for('routes.personal_data') }}" class="block px-4 py-2 hover:bg-blue-100">Account and Personal Data</a>
               <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
             </div>
-          </div>
+           </div>
         </div>
     </header>
 
@@ -81,21 +80,36 @@
 
             <!-- Username/Password Form (Hidden by default) -->
             <div id="change-credentials-form" class="mt-6 hidden">
-                <form method="POST">
+                <form method="POST" id="change-credentials-form-submit">
                     {{ password_change_form.hidden_tag() }}
+            
+                    <!-- New Username -->
                     <div class="mb-4">
+                        <label for="new_username" class="block text-sm font-medium text-gray-700">New Username</label>
+                        <input type="text" id="new_username" name="new_username" class="form-input mt-1 block w-full" required />
+                    </div>
+            
+                    <!-- New Password -->
+                    <div class="mb-4 relative">
                         {{ password_change_form.password.label(class="block text-sm font-medium text-gray-700") }}
-                        {{ password_change_form.password(class="form-input mt-1 block w-full") }}
+                        {{ password_change_form.password(class="form-input mt-1 block w-full pr-12 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", id="passwordInput") }}
+                        <span id="togglePassword" onclick="togglePassword('passwordInput', 'togglePassword')" class="fa fa-eye absolute right-3 top-9 cursor-pointer" style="cursor: pointer;"></span>
                     </div>
-                    <div class="mb-4">
+            
+                    <!-- Confirm Password -->
+                    <div class="mb-4 relative">
                         {{ password_change_form.confirm_password.label(class="block text-sm font-medium text-gray-700") }}
-                        {{ password_change_form.confirm_password(class="form-input mt-1 block w-full") }}
+                        {{ password_change_form.confirm_password(class="form-input mt-1 block w-full pr-12 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", id="confirmPasswordInput") }}
+                        <span id="toggleConfirmPassword" onclick="togglePassword('confirmPasswordInput', 'toggleConfirmPassword')" class="fa fa-eye absolute right-3 top-9 cursor-pointer" style="cursor: pointer;"></span>
                     </div>
+            
+                    <!-- Submit Button -->
                     <div>
                         {{ password_change_form.submit(class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 focus:outline-none cursor-pointer") }}
                     </div>
                 </form>
             </div>
+            <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         </div>
     </main>
 </div>

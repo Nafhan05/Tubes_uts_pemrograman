@@ -1,0 +1,91 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-white bg-cover bg-center">
+    <header class="bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white  shadow-md py-4 fixed w-full top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
+            <!-- Navigation Section -->
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('routes.home_admin') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
+                <nav class="flex space-x-6 items-center">
+                    <a href="{{ url_for('routes.home_admin') }}" class="hover:underline">Home</a>
+                    <div class="relative">
+                    </div>
+                        <a href="{{ url_for('routes.database') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Database</a>
+                    <a href="{{ url_for('routes.chat_admin') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Chat</a>
+                </nav>
+            </div>
+            <div class="relative">
+                <button id="settingsButton" class="focus:outline-none">
+                  <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
+                </button>
+                <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
+                  <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
+                </div>
+              </div>
+        </div>
+    </header>
+    <!-- Pencarian -->
+    <form method="GET" action="{{ url_for('routes.database') }}" class="mb-4">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Search..." class="border p-2 rounded w-full" />
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded mt-2">Search</button>
+    </form>
+
+    <!-- Tabel Data Pasien -->
+    <table class="min-w-full bg-white border border-gray-300 rounded shadow-md">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2 text-left">ID</th>
+                <th class="px-4 py-2 text-left">Full Name</th>
+                <th class="px-4 py-2 text-left">NIK</th>
+                <th class="px-4 py-2 text-left">Domisili</th>
+                <th class="px-4 py-2 text-left">Phone Number</th>
+                <th class="px-4 py-2 text-left">Schedule</th>
+                <th class="px-4 py-2 text-left">Reservation Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for patient in patients.items %}
+                <tr>
+                    <td class="px-4 py-2">{{ patient.id }}</td>
+                    <td class="px-4 py-2">{{ patient.full_name }}</td>
+                    <td class="px-4 py-2">{{ patient.nik }}</td>
+                    <td class="px-4 py-2">{{ patient.domicile }}</td>
+                    <td class="px-4 py-2">{{ patient.phone }}</td>
+                    <td class="px-4 py-2">
+                        {% if patient.reservations %}
+                            {{ patient.reservations[0].reservation_date }} at {{ patient.reservations[0].reservation_time }}
+                        {% else %}
+                            No Schedule
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                        {% if patient.reservations %}
+                            {{ patient.reservations[0].tests }}
+                        {% else %}
+                            No Tests
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center px-4 py-2">No data available</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginasi -->
+    <div class="mt-4">
+        {% if patients.has_prev %}
+            <a href="{{ url_for('routes.database', page=patients.prev_num, search=search_query) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Previous</a>
+        {% endif %}
+
+        <span class="px-4 py-2">{{ patients.page }} of {{ patients.pages }}</span>
+
+        {% if patients.has_next %}
+            <a href="{{ url_for('routes.database', page=patients.next_num, search=search_query) }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

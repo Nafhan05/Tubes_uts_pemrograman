@@ -20,12 +20,10 @@
                   <a href="{{ url_for('routes.reservation_cancel') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Cancel Appointment</a>
               </div>
             </div>
-            <a href="{{ url_for('routes.schedule') }}" class="hover:underline">Schedule available</a>
-            <a href="{{ url_for('routes.result') }}" class="hover:underline">Results</a>
-            <a href="#" class="hover:underline">Contact us</a>
+            <a href="{{ url_for('routes.available_schedule') }}" class="hover:underline">Schedule available</a>
+            <a href="{{ url_for('routes.chat') }}" class="hover:underline">Contact us</a>
         </nav>
       </div>
-
 
       <!-- Setting Icon and Dropdown -->
       <div class="relative">
@@ -33,7 +31,7 @@
           <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
         </button>
         <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
-          <a href="{{ url_for('routes.account') }}" class="block px-4 py-2 hover:bg-blue-100">Account and Personal Data</a>
+          <a href="{{ url_for('routes.personal_data') }}" class="block px-4 py-2 hover:bg-blue-100">Personal Data</a>
           <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
         </div>
       </div>
@@ -55,12 +53,23 @@
         </div>
         <!-- Right Section: Opening Hours -->
         <div class="w-full lg:w-1/3">
+          <!-- Opening Hours Section -->
           <div class="bg-white p-8 rounded shadow-md">
             <h3 class="text-2xl font-bold text-blue-600 mb-4">Opening Hours</h3>
             <ul class="text-gray-700">
-              <li class="mb-2">Monday - Friday: 8:00 AM - 8:00 PM</li>
-              <li class="mb-2">Saturday: 9:00 AM - 5:00 PM</li>
+              <li class="mb-2">Everyday: 8:00 AM - 5:00 PM</li>
             </ul>
+          </div>
+          <div class="bg-white p-8 rounded shadow-md mt-8">
+            <h3 class="text-2xl font-bold text-blue-600 mb-4">Your Existing Reservation</h3>
+            <!-- Reservation Info Block -->
+            {% if existing_reservation %}
+              <p><strong>Date:</strong> {{ existing_reservation.reservation_date }}</p>
+              <p><strong>Time:</strong> {{ existing_reservation.reservation_time }}</p>
+              <p><strong>Tests:</strong> {{ existing_reservation.tests }}</p>
+            {% else %}
+              <p class="text-gray-500">You have no existing reservation.</p>
+            {% endif %}
           </div>
         </div>
       </div>
