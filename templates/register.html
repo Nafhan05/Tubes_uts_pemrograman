@@ -37,7 +37,8 @@
             <!-- Password Field -->
             <div class="mb-4 relative">
                 {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
-                {{ form.password(class="form-input mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500", placeholder="Enter your password") }}
+                {{ form.password(class="form-input mt-1 block w-full pr-12 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder="Enter your password", id="passwordInput") }}
+                <span id="togglePassword" onclick="togglePassword('passwordInput', 'togglePassword')" class="fa fa-eye absolute right-3" style="top: 29px; cursor: pointer;"></span>
                 {% if form.password.errors %}
                     <div class="text-red-500 text-sm mt-1">
                         {% for error in form.password.errors %}
@@ -48,9 +49,10 @@
             </div>
 
             <!-- Confirm Password Field -->
-            <div class="mb-4">
+            <div class="mb-4 relative">
                 {{ form.confirm_password.label(class="block text-sm font-medium text-gray-700") }}
-                {{ form.confirm_password(class="form-input mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500", placeholder="Confirm your password") }}
+                {{ form.confirm_password(class="form-input mt-1 block w-full pr-12 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder="Confirm your password", id="confirmPasswordInput") }}
+                <span id="toggleConfirmPassword" onclick="togglePassword('confirmPasswordInput', 'toggleConfirmPassword')" class="fa fa-eye absolute right-3" style="top: 29px; cursor: pointer;"></span>
                 {% if form.confirm_password.errors %}
                     <div class="text-red-500 text-sm mt-1">
                         {% for error in form.confirm_password.errors %}
@@ -59,10 +61,9 @@
                     </div>
                 {% endif %}
             </div>
-
             <!-- Submit Button -->
             <div>
-                <input type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:bg-green-800" value="Register">
+                <input type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:bg-green-800 cursor-pointer" value="Register">
             </div>
         </form>
 

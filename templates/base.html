@@ -44,12 +44,12 @@
         {% block content %}
         {% endblock %}
     </main>
-    <footer class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white text-center p-4 mt-8">
+    <footer class="text-white text-center p-4 mt-8 bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600">
         <p>Laboratorium Clinic Health+ Management © 2024</p>
     </footer>
 
     <!-- Notification Element -->
-    <div id="notification" class="hidden fixed top-5 right-5 py-2 px-4 rounded shadow">
+    <div id="notification" class="hidden fixed top-5 right-8 py-2 px-4 rounded shadow">
         <p id="notification-message"></p>
     </div>
 
@@ -73,6 +73,40 @@
                 notification.className = 'hidden';
             }, 3000);
         }
+        // setInterval(() => {
+        //     location.reload();
+        // }, 5000);  // Refresh setiap 5 detik
+        
+        const socket = io.connect('http://127.0.0.1:5000');  // Sesuaikan dengan URL aplikasi Anda
+
+        // Kirim pesan saat tombol diklik
+        document.querySelector('button').addEventListener('click', function() {
+            const messageInput = document.querySelector('input[type="text"]');
+            const message = messageInput.value;
+            
+            if (message.trim()) {
+                socket.emit('send_message', {message: message, sender: '{{ current_user.username }}'});  // Mengirim pesan dengan sender
+                messageInput.value = '';  // Kosongkan input
+            }
+        });
+
+        // Terima pesan dan tampilkan di layar
+        socket.on('receive_message', function(data) {
+            const messagesContainer = document.querySelector('main');
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('space-y-4');
+            
+            newMessage.innerHTML = `
+                <div class="${data.sender === 'admin' ? 'flex items-start space-x-4' : 'flex items-end justify-end'}">
+                    <div class="p-3 rounded-lg max-w-sm ${data.sender === 'admin' ? 'bg-gray-200' : 'bg-blue-500 text-white'}">
+                        <p>${data.message}</p>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(newMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;  // Auto scroll ke bawah
+        });
     </script>
 </body>
 </html>

@@ -38,7 +38,7 @@
             <div class="mb-4 relative">
                 {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
                 {{ form.password(class="form-input mt-1 block w-full pr-12 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder="Enter your password", id="passwordInput") }}
-                <span id="togglePassword" onclick="togglePassword('passwordInput', 'togglePassword')" class="fa fa-eye absolute right-3 top-3 cursor-pointer"></span>
+                <span id="togglePassword" onclick="togglePassword('passwordInput', 'togglePassword')" class="fa fa-eye absolute right-3 cursor-pointer" style="top: 29px;"></span>
                 {% if form.password.errors %}
                     <div class="text-red-500 text-sm mt-1">
                         {% for error in form.password.errors %}

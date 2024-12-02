@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="min-h-screen bg-custom-background bg-cover bg-center">
+<div class="chat-container">
     <header class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white shadow-md py-4 fixed w-full top-0 z-10">
         <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
           <!-- Navigation Section -->
@@ -24,7 +24,6 @@
             </nav>
           </div>
     
-    
           <!-- Setting Icon and Dropdown -->
           <div class="relative">
             <button id="settingsButton" class="focus:outline-none">
@@ -37,49 +36,42 @@
           </div>
         </div>
     </header>
-
-    <main class="pt-24 py-10">
-        <div class="container mx-auto px-6 bg-white bg-opacity-75 p-8 rounded shadow-md">
-            <h2 class="text-2xl font-bold text-blue-600 mb-6">Available Schedule</h2>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {% for date, times in schedule.items() %}
-                <div class="border rounded-lg shadow p-4 bg-blue-100">
-                    <h3 class="font-bold text-lg text-blue-700">{{ date }}</h3>
-                    <ul class="mt-2">
-                        <li>
-                            <button onclick="toggleTimes('{{ date }}')" 
-                                class="block w-full bg-blue-600 text-white text-center rounded px-4 py-2 mt-2 hover:bg-blue-700">
-                                Show Available Times
-                            </button>
-                            <div id="times-{{ date }}" class="times hidden mt-4">
-                                {% for time, slots in times.items() %}
-                                    {% if slots > 0 %}
-                                        <a href="{{ url_for('routes.reservation_create', date=date, time=time) }}" 
-                                           class="block bg-blue-600 text-white text-center rounded px-4 py-2 mt-2 hover:bg-blue-700">
-                                            {{ time }} ({{ slots }} slot(s) left)
-                                        </a>
-                                    {% else %}
-                                        <span class="block bg-gray-400 text-white text-center rounded px-4 py-2 mt-2 cursor-not-allowed">
-                                            {{ time }} (Fully booked)
-                                        </span>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </li>
-                    </ul>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3 class="sidebar-title">Contact</h3>
+        <ul class="contact-list">
+            <li class="contact-item" style="margin-bottom: 10px;">
+                <div class="chat-header-box" style="color: white; padding: 8px;">
+                    <h4>Admin</h4>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-    </main>
-</div>
+            </li>
+        </ul>
+    </div>
 
-<script>
-    function toggleTimes(date) {
-        // Toggle visibility of available times for the selected date
-        const timesContainer = document.getElementById(`times-${date}`);
-        timesContainer.classList.toggle("hidden");
-    }
-</script>
+    <!-- Main Chat Area -->
+    <div class="chat-area">
+        <div class="chat-header">
+            <h3>Admin</h3>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            {% for message in messages %}
+                <div class="message-chat {{ 'sent' if message.sender_id == current_user.id else 'received-admin' }}">
+                    <p>{{ message.message }}</p>
+                    <small>
+                        <span>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span><br>
+                        {% if message.sender_id == current_user.id and message.is_read %}
+                            <span>Read</span>
+                        {% endif %}
+                    </small>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form action="{{ url_for('routes.chat') }}" method="POST" class="chat-input">
+            <input type="text" name="message" placeholder="Type a message" required>
+            <button type="submit" id="chat-form">Send</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

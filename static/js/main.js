@@ -138,6 +138,22 @@ function showNotification(message, type = 'success') {
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    const form = document.getElementById('personalDataForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            const fullName = document.getElementById('full_name').value;
+            const nik = document.getElementById('nik').value;
+            const domicile = document.getElementById('domicile').value;
+            const phone = document.getElementById('phone').value;
+
+            // Validate form fields
+            if (!fullName || !nik || !domicile || !phone) {
+                e.preventDefault();
+                alert('Please fill out all fields.');
+            }
+        })
+    }
+
     // Settings Button Listener
     const settingsButton = document.getElementById('settingsButton');
     if (settingsButton) {
@@ -151,6 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (reservationButton) {
         toggleReservationDropdown();  // Initialize dropdown for reservation
     }
+
 
     // Form Validation for Login and Register
     const loginForm = document.querySelector('#loginForm');
@@ -192,50 +209,60 @@ document.addEventListener('DOMContentLoaded', function () {
             sidebar.classList.toggle('hidden');
         })
     }
-    
 
     this.form.submit(); // Submit form untuk memperbarui waktu secara otomatis
-
-    const checkbox = document.getElementById('change-credentials-checkbox');
-    const changeCredentialsForm = document.getElementById('change-credentials-form');
-    const personalDataForm = document.getElementById('personal-data-form');
-    const successNotification = document.getElementById('success-notification');
-    const errorNotification = document.getElementById('error-notification');
-
-    // Tampilkan atau sembunyikan form ganti username/password berdasarkan checkbox
-    checkbox.addEventListener('change', function () {
-        if (this.checked) {
-            changeCredentialsForm.classList.remove('hidden');
-        } else {
-            changeCredentialsForm.classList.add('hidden');
-        }
-    })
-
-    // Handle form submission untuk ganti data pribadi
-    personalDataForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        
-        // Simulate saving data
-        setTimeout(function () {
-            showSuccessNotification("Personal data saved successfully!");
-        }, 500); // Simulate saving time
-
-        // Reset form setelah menyimpan
-        personalDataForm.reset();
-    })
-
-    // Show error notification jika mencoba ganti kredensial sebelum menyimpan data
-    const changePasswordForm = document.getElementById('change-credentials-form-submit');
-    changePasswordForm.addEventListener('submit', function (e) {
-        if (!checkbox.checked) {
-            e.preventDefault();
-            errorNotification.classList.remove('hidden');
-            setTimeout(function () {
-                errorNotification.classList.add('hidden');
-            }, 3000);  // Hide after 3 seconds
-        }
-
-    })
     initializePickers();
     
 });
+
+
+
+// Validasi form sebelum submit
+function validateForm() {
+    const fullName = document.getElementById('full_name').value;
+    const nik = document.getElementById('nik').value;
+    const domicile = document.getElementById('domicile').value;
+    const phone = document.getElementById('phone').value;
+
+    // Pastikan semua kolom terisi
+    if (!fullName || !nik || !domicile || !phone) {
+        alert('All fields must be filled out!');
+        return false;
+    }
+
+    // Jika semua validasi berhasil, simpan data ke localStorage
+    savePersonalDataToLocalStorage();
+    return true;
+}
+
+// Event listener untuk form submit
+document.getElementById('personalDataForm').addEventListener('submit', function (e) {
+    if (validateForm()) {
+        // Jika validasi berhasil, hapus preventDefault agar form terkirim
+        e.preventDefault(); // Hapus jika validasi berhasil
+        this.submit(); // Kirim form
+    }
+});
+
+document.getElementById('chat-form').addEventListener('submit', function (e) {
+    e.preventDefault();  // Mencegah pengiriman form default
+    const messageInput = this.querySelector('input[name="message"]');
+    const message = messageInput.value.trim();
+
+    if (message) {
+        fetch(this.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ message })
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reset input setelah pesan dikirim
+                messageInput.value = '';
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+});
+
+

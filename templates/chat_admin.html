@@ -1,0 +1,72 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<div class="chat-container">
+    <header class="bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white  shadow-md py-4 fixed w-full top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
+            <!-- Navigation Section -->
+            <div class="flex items-center space-x-8">
+                <a href="{{ url_for('routes.home_admin') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
+                <nav class="flex space-x-6 items-center">
+                    <a href="{{ url_for('routes.home_admin') }}" class="hover:underline">Home</a>
+                    <div class="relative">
+                    </div>
+                        <a href="{{ url_for('routes.database') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Database</a>
+                    <a href="{{ url_for('routes.chat_admin') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Chat</a>
+                </nav>
+            </div>
+            <div class="relative">
+                <button id="settingsButton" class="focus:outline-none">
+                  <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
+                </button>
+                <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
+                  <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
+                </div>
+              </div>
+        </div>
+    </header>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h3 class="sidebar-title">Contacts</h3>
+        <ul class="contact-list">
+            {% for user in users %}
+                <!-- Link ke URL chat_admin dengan patient_id -->
+                <li class="contact-item" style="margin-bottom: 10px;">
+                    <a href="{{ url_for('routes.chat_admin', patient_id=user.id) }}">
+                        <div class="chat-header-box" style=" color: white; padding: 8px; margin: bottom 10px;; ">
+                            <h4>{{ user.personal_data.full_name }}</h4>
+                        </div>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-area">
+        <div class="chat-header">
+            <h3>{{ selected_patient.personal_data.full_name }}</h3>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            {% for message in messages %}
+                <div class="message-chat {{ 'sent-admin' if message.sender_id == admin_user.id else 'received' }}">
+                    <p>{{ message.message }}</p>
+                    <small>
+                        <span>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span><br>
+                        {% if message.sender_id == admin_user.id and message.is_read %}
+                            <span>Read</span>
+                        {% endif %}
+                    </small>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form action="{{ url_for('routes.chat_admin', patient_id=selected_patient.id) }}" method="POST" class="chat-input">
+            <input type="text" name="message" placeholder="Type a message" required>
+            <button type="submit" id="chat-form">Send</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

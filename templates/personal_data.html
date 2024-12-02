@@ -38,48 +38,50 @@
         </div>
     </header>
 
+    <!-- Main Content Section -->
     <main class="pt-24 py-10">
         <div class="container mx-auto px-6 bg-white bg-opacity-75 p-8 rounded shadow-md">
-            <h2 class="text-2xl font-bold text-blue-600 mb-6">Available Schedule</h2>
+            <h2 class="text-2xl font-bold text-blue-600 mb-6">Account and Personal Data</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {% for date, times in schedule.items() %}
-                <div class="border rounded-lg shadow p-4 bg-blue-100">
-                    <h3 class="font-bold text-lg text-blue-700">{{ date }}</h3>
-                    <ul class="mt-2">
-                        <li>
-                            <button onclick="toggleTimes('{{ date }}')" 
-                                class="block w-full bg-blue-600 text-white text-center rounded px-4 py-2 mt-2 hover:bg-blue-700">
-                                Show Available Times
-                            </button>
-                            <div id="times-{{ date }}" class="times hidden mt-4">
-                                {% for time, slots in times.items() %}
-                                    {% if slots > 0 %}
-                                        <a href="{{ url_for('routes.reservation_create', date=date, time=time) }}" 
-                                           class="block bg-blue-600 text-white text-center rounded px-4 py-2 mt-2 hover:bg-blue-700">
-                                            {{ time }} ({{ slots }} slot(s) left)
-                                        </a>
-                                    {% else %}
-                                        <span class="block bg-gray-400 text-white text-center rounded px-4 py-2 mt-2 cursor-not-allowed">
-                                            {{ time }} (Fully booked)
-                                        </span>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </li>
-                    </ul>
+            <!-- Personal Data Form -->
+            <form id="personalDataForm" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        {{ form.full_name.label(class="block text-sm font-medium text-gray-700") }}
+                        <input type="text" id="full_name" name="full_name" class="form-input mt-1 block w-full" value="{{ form.full_name.data }}">
+                    </div>
+                    <div class="mb-4">
+                        {{ form.nik.label(class="block text-sm font-medium text-gray-700") }}
+                        <input type="text" id="nik" name="nik" class="form-input mt-1 block w-full" value="{{ form.nik.data }}">
+                    </div>
+                    <div class="mb-4">
+                        {{ form.domicile.label(class="block text-sm font-medium text-gray-700") }}
+                        <input type="text" id="domicile" name="domicile" class="form-input mt-1 block w-full" value="{{ form.domicile.data }}">
+                    </div>
+                    <div class="mb-4">
+                        {{ form.phone.label(class="block text-sm font-medium text-gray-700") }}
+                        <input type="text" id="phone" name="phone" class="form-input mt-1 block w-full" value="{{ form.phone.data }}">
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
+
+                <!-- Submit Button -->
+                <div class="mt-6">
+                    <input type="submit" class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 focus:outline-none cursor-pointer" value="Save Personal Data">
+                </div>
+            </form>
+
+            <!-- Flash Message -->
+            {% if messages %}
+                <div class="alert alert-success mt-4">
+                    {% for category, message in messages %}
+                        {% if category == 'success' %}
+                            <p>{{ message }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </main>
 </div>
-
-<script>
-    function toggleTimes(date) {
-        // Toggle visibility of available times for the selected date
-        const timesContainer = document.getElementById(`times-${date}`);
-        timesContainer.classList.toggle("hidden");
-    }
-</script>
 {% endblock %}
