@@ -332,11 +332,9 @@ def database():
     search_query = request.args.get('search', '').strip()
     page = request.args.get('page', 1, type=int)  # Untuk navigasi halaman
 
-    # Query dasar dengan relasi ke PersonalData dan Reservation
-    query = db.session.query(PersonalData).join(User).outerjoin(Reservation, Reservation.patient_id == PersonalData.id)
+    # Modifikasi query untuk join dengan Reservation dengan menggunakan left join
+    query = db.session.query(PersonalData).outerjoin(Reservation, Reservation.patient_id == PersonalData.id)
 
-    for patient in query.all():
-        print(patient.reservation)  # Log reservation untuk setiap pasien
     # Tambahkan filter jika ada pencarian
     if search_query:
         query = query.filter(
@@ -394,8 +392,8 @@ def chat():
             db.session.add(chat)
             db.session.commit()
             return redirect(url_for('routes.chat'))
-
-    return render_template('chat.html', messages=messages, admin_user=admin_user)
+    new_messages = len(messages) > 0
+    return render_template('chat.html', messages=messages, admin_user=admin_user, new_messages=new_messages)
 
 
 
@@ -445,7 +443,8 @@ def chat_admin(patient_id=None):
     # Ambil daftar pasien untuk sidebar
     users = User.query.filter(User.username != 'admin').all()
 
-    return render_template('chat_admin.html', messages=messages, selected_patient=selected_patient, users=users, admin_user=admin_user)
+    new_messages = len(messages) > 0
+    return render_template('chat_admin.html', messages=messages, selected_patient=selected_patient, users=users, admin_user=admin_user, new_messages=new_messages)
 
 
 

@@ -74,4 +74,30 @@
         </form>
     </div>
 </div>
+
+<script>
+// Fungsi untuk memeriksa apakah ada pesan baru
+function checkNewMessages() {
+    var currentTimestamp = new Date().toISOString(); // Ambil timestamp saat ini
+
+    $.ajax({
+        url: '{{ url_for('routes.chat') }}', // URL untuk memeriksa pesan terbaru
+        method: 'GET',
+        data: { timestamp: currentTimestamp }, // Mengirim timestamp terakhir
+        success: function(data) {
+            // Jika ada pesan baru, reload halaman untuk memperbarui pesan
+            if (data.newMessages) {
+                location.reload();  // Refresh halaman
+            }
+        },
+        error: function(error) {
+            console.log("Error checking new messages: ", error);
+        }
+    });
+}
+
+// Memanggil fungsi checkNewMessages setiap 5 detik
+setInterval(checkNewMessages, 5000);  // Cek setiap 5 detik
+</script>
+
 {% endblock %}
