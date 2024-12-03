@@ -5,8 +5,10 @@ import os
 from datetime import timedelta
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
+from dotenv import load_dotenv
 
-
+# Muat environment variables dari file .env
+load_dotenv()
 
 # Inisialisasi Ekstensi di luar fungsi create_app
 socketio = SocketIO()
@@ -22,14 +24,13 @@ def create_app():
                 static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static'))
 
     # Konfigurasi Aplikasi Flask
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'database', 'app.db')
-    app.config['SECRET_KEY'] = 'your_secret_key_here'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'database', 'app.db'))
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_default_secret_key')
 
     # Mengatur durasi cookie remember me
     app.config['REMEMBER_COOKIE_DURATION'] = timedelta(seconds=10)  # Mengingat selama 10 detik
 
     migrate = Migrate(app, db)
-
 
     # Inisialisasi Ekstensi
     db.init_app(app)
