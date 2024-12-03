@@ -5,10 +5,7 @@ import os
 from datetime import timedelta
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
-from dotenv import load_dotenv
 
-# Muat environment variables dari file .env
-load_dotenv()
 
 # Inisialisasi Ekstensi di luar fungsi create_app
 socketio = SocketIO()
