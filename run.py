@@ -1,8 +1,7 @@
 from app import create_app, socketio
-import os
 
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=5000))  # Menambahkan host dan port untuk akses lebih fleksibel
+    app.run(host='0.0.0.0', port=5000, debug=True)  # Menambahkan host dan port untuk akses lebih fleksibel
     socketio.run(app, debug=True)

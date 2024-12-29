@@ -5,7 +5,6 @@
   <!-- Dashboard Section -->
   <header class="bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white shadow-md py-4 fixed w-full top-0 z-10">
     <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
-      <!-- Navigation Section -->
       <div class="flex items-center space-x-8">
         <a href="{{ url_for('routes.home') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
         <nav class="flex space-x-6 items-center">
@@ -51,7 +50,8 @@
             <a href="{{ url_for('routes.reservation_create') }}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mt-8 inline-block">Make an appointment</a>
           </div>
         </div>
-        <!-- Right Section: Opening Hours -->
+
+        <!-- Right Section: Opening Hours + Reservation + Map -->
         <div class="w-full lg:w-1/3">
           <!-- Opening Hours Section -->
           <div class="bg-white p-8 rounded shadow-md">
@@ -60,16 +60,29 @@
               <li class="mb-2">Everyday: 8:00 AM - 5:00 PM</li>
             </ul>
           </div>
+
+          <!-- Map Section (TomTom Maps) -->
           <div class="bg-white p-8 rounded shadow-md mt-8">
-            <h3 class="text-2xl font-bold text-blue-600 mb-4">Your Existing Reservation</h3>
-            <!-- Reservation Info Block -->
-            {% if existing_reservation %}
-              <p><strong>Date:</strong> {{ existing_reservation.reservation_date }}</p>
-              <p><strong>Time:</strong> {{ existing_reservation.reservation_time }}</p>
-              <p><strong>Tests:</strong> {{ existing_reservation.tests }}</p>
-            {% else %}
-              <p class="text-gray-500">You have no existing reservation.</p>
-            {% endif %}
+            <h3 class="text-2xl font-bold text-blue-600 mb-4">Location</h3>
+            
+            <!-- Peta -->
+            <div id="map" style="height: 300px;"></div>
+
+            <!-- Tombol Pusatkan Lokasi -->
+            <div class="mt-4 text-center">
+                <button id="centerLocation" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Pusatkan ke Lokasi Saya
+                </button>
+            </div>
+
+            <!-- Alamat Laboratorium -->
+            <div class="mt-4">
+                <h4 class="text-lg font-bold text-gray-800">Alamat Laboratorium:</h4>
+                <p class="text-gray-600">
+                    Jl. Sukagalih, Indihiang, Kota Tasikmalaya<br>
+                    Jawa Barat, Indonesia 46151
+                </p>
+            </div>
           </div>
         </div>
       </div>
@@ -77,4 +90,65 @@
   </main>
 </div>
 
+<!-- TomTom Maps API -->
+<script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js"></script>
+<link rel="stylesheet" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css" />
+
+<!-- Map Script -->
+<script>
+  tt.setProductInfo('Health+ Lab', '1.0');
+
+  // Inisialisasi peta
+  var map = tt.map({
+      key: 'mIv48VudBsKKWdGPgoAD2Ly6vieFAu9i',
+      container: 'map',
+      center: [108.16422056774601, -7.276405775992547],  // Lokasi Default (Jakarta)
+      zoom: 14
+  });
+
+  // Tambahkan marker lokasi laboratorium
+  var marker = new tt.Marker().setLngLat([108.16422056774601, -7.276405775992547]).addTo(map);
+  var popup = new tt.Popup().setHTML('<strong>Laboratorium Kesehatan Health+</strong>');
+  marker.setPopup(popup).togglePopup();
+
+  // Tambahkan navigasi (zoom in/out)
+  map.addControl(new tt.NavigationControl());
+
+  // Marker untuk lokasi pengguna
+  var userMarker;
+
+  // Ambil lokasi pengguna saat ini
+  navigator.geolocation.getCurrentPosition(
+      function (position) {
+          var userLngLat = [position.coords.longitude, position.coords.latitude];
+
+          userMarker = new tt.Marker({
+              color: 'blue'
+          }).setLngLat(userLngLat).addTo(map);
+          
+          // Pusatkan peta ke lokasi user
+          map.setCenter(userLngLat);
+      },
+      function (error) {
+          console.error("Error Geolocation:", error);
+      }
+  );
+
+  // Fungsi untuk pusatkan peta ke lokasi pengguna saat tombol ditekan
+  document.getElementById('centerLocation').addEventListener('click', function() {
+      if (userMarker) {
+          map.setCenter(userMarker.getLngLat());
+          map.setZoom(16);  // Zoom lebih dekat saat lokasi dipusatkan
+      } else {
+          alert('Lokasi Anda belum tersedia. Pastikan izin lokasi diberikan.');
+      }
+  });
+</script>
+
 {% endblock %}
+
+
+
+
+
+<!-- lat: -7.276405775992547, lng: 108.16422056774601  
