@@ -91,6 +91,7 @@
         color: white;
         padding: 10px;
         box-sizing: border-box;
+        overflow-y: auto; /* Tambahkan scroll */
     }
     
     .sidebar-title {
@@ -103,16 +104,19 @@
         padding: 0;
     }
     
-    .contact-item {
-        padding: 10px;
-        background-color: #444;
-        margin-bottom: 5px;
-        cursor: pointer;
-        border-radius: 5px;
+    .contact-item a {
+      padding: 10px;
+      text-decoration: none;
+      background-color: #444;
+      color: white;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 5px;
     }
-    
-    .contact-item:hover {
-        background-color: #555;
+    .contact-item a:hover {
+      background-color: #464545;
     }
     
     .chat-area {
@@ -215,5 +219,35 @@
         color: rgb(0, 0, 0); /* Warna teks status */
         float: right; /* Posisikan di pojok kanan bawah */
     }
+    .auto-scroll {
+      overflow-y: auto;
+      max-height: 70vh;  /* Menjaga tinggi maksimum */
+    }
+    .auto-scroll-smooth {
+      scroll-behavior: smooth;
+    }
+    .chat-messages.auto-scroll {
+      max-height: calc(100vh - 200px);  /* Menyesuaikan tinggi chat agar tidak melebihi viewport */
+      overflow-y: scroll;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 10px auto;
+    }
+    .chat-scroll {
+      height: 60vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
     
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   }

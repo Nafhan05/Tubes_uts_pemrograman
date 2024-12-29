@@ -225,25 +225,55 @@ document.getElementById('personalDataForm').addEventListener('submit', function 
     }
 });
 
-document.getElementById('chat-form').addEventListener('submit', function (e) {
-    e.preventDefault();  // Mencegah pengiriman form default
-    const messageInput = this.querySelector('input[name="message"]');
-    const message = messageInput.value.trim();
+document.addEventListener('DOMContentLoaded', function () {
+    const chatForm = document.getElementById('chat-form');
+    
+    if (chatForm) {
+        chatForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            
+            const messageInput = this.querySelector('input[name="message"]');
+            const message = messageInput.value.trim();
+            const patientId = window.patientId;  // Ambil dari template
 
-    if (message) {
-        fetch(this.action, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ message })
-        })
-        .then(response => {
-            if (response.ok) {
-                // Reset input setelah pesan dikirim
-                messageInput.value = '';
+            if (message) {
+                try {
+                    const response = await fetch(`/chat_admin/${patientId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const chatMessages = document.getElementById('chat-messages');
+                        const newMessage = `
+                            <div class="message-chat sent-admin" data-message-id="${data.id}">
+                                <p>${data.message}</p>
+                                <small>${data.timestamp}</small><br>
+                                <span class="read-status">Sent</span>
+                            </div>
+                        `;
+
+                        if (chatMessages) {
+                            chatMessages.innerHTML += newMessage;
+                            messageInput.value = '';  // Kosongkan input setelah kirim
+                            chatMessages.scrollTop = chatMessages.scrollHeight;  // Auto-scroll
+                        }
+                    } else {
+                        alert('Failed to send message.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while sending the message.');
+                }
             }
-        })
-        .catch(error => console.error('Error:', error));
+        });
+    } else {
+        console.error("Chat form not found.");
     }
 });
+
 
 

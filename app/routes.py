@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, url_for, flash, redirect, request, session, jsonify, abort
+from flask import Blueprint, render_template, url_for, flash, redirect, request, session, abort, jsonify
 from app import db, socketio
 from app.models import User, Reservation, PersonalData, Chat
 from app.forms import RegistrationForm, LoginForm, PersonalDataForm, ReservationForm
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
 from flask_sqlalchemy import pagination
-from flask_socketio import emit
 
 # Membuat Blueprint
 routes = Blueprint('routes', __name__)
@@ -358,7 +357,6 @@ def database():
     return render_template('database.html', patients=patients, search_query=search_query)
 
 
-
 @routes.route('/chat_patient', methods=['GET', 'POST'])
 def chat():
     admin_user = User.query.filter_by(username='admin').first()
@@ -446,6 +444,45 @@ def chat_admin(patient_id=None):
     new_messages = len(messages) > 0
     return render_template('chat_admin.html', messages=messages, selected_patient=selected_patient, users=users, admin_user=admin_user, new_messages=new_messages)
 
+@routes.route('/check_messages')
+def check_messages():
+    new_messages = Chat.query.filter_by(is_read=False).all()
+    if new_messages:
+        for msg in new_messages:
+            msg.is_read = True
+        db.session.commit()
+        
+        # Kirim data lengkap
+        return jsonify({
+            'newMessages': True,
+            'messages': [
+                {
+                    'message': msg.message,
+                    'timestamp': msg.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    'sender_id': msg.sender_id
+                } for msg in new_messages
+            ]
+        })
+    return jsonify({'newMessages': False})
+
+@routes.route('/update_read_status', methods=['POST'])
+def update_read_status():
+    message_id = request.json.get('message_id')
+    message = Chat.query.get(message_id)
+    if message:
+        message.is_read = True
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify({'success': False})
+
+@routes.route('/check_read_status')
+def check_read_status():
+    user_id = current_user.id
+    new_read_messages = Chat.query.filter_by(receiver_id=user_id, is_read=True).all()
+
+    return jsonify({
+        'readMessages': [{'id': msg.id} for msg in new_read_messages]
+    })
 
 
 @routes.route("/home")

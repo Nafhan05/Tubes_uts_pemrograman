@@ -1078,11 +1078,6 @@ video {
   color: rgb(29 78 216 / var(--tw-text-opacity, 1));
 }
 
-.text-gray-500 {
-  --tw-text-opacity: 1;
-  color: rgb(107 114 128 / var(--tw-text-opacity, 1));
-}
-
 .text-gray-600 {
   --tw-text-opacity: 1;
   color: rgb(75 85 99 / var(--tw-text-opacity, 1));
@@ -1091,6 +1086,11 @@ video {
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
+}
+
+.text-gray-800 {
+  --tw-text-opacity: 1;
+  color: rgb(31 41 55 / var(--tw-text-opacity, 1));
 }
 
 .text-gray-900 {
@@ -1228,6 +1228,8 @@ select#reservationTime {
   color: white;
   padding: 10px;
   box-sizing: border-box;
+  overflow-y: auto;
+  /* Tambahkan scroll */
 }
 
 .sidebar-title {
@@ -1240,16 +1242,20 @@ select#reservationTime {
   padding: 0;
 }
 
-.contact-item {
+.contact-item a {
   padding: 10px;
+  text-decoration: none;
   background-color: #444;
-  margin-bottom: 5px;
-  cursor: pointer;
+  color: white;
+  display: block;
+  padding: 8px 12px;
   border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 5px;
 }
 
-.contact-item:hover {
-  background-color: #555;
+.contact-item a:hover {
+  background-color: #464545;
 }
 
 .chat-area {
@@ -1356,6 +1362,28 @@ select#reservationTime {
   text-align: left;
   margin-right: auto;
   /* Posisi di kiri */
+}
+
+.chat-messages.auto-scroll {
+  max-height: calc(100vh - 200px);
+  /* Menyesuaikan tinggi chat agar tidak melebihi viewport */
+  overflow-y: scroll;
+}
+
+.chat-scroll {
+  height: 60vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .hover\:bg-blue-100:hover {

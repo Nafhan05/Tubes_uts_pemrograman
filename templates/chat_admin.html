@@ -2,39 +2,38 @@
 
 {% block content %}
 <div class="chat-container">
-    <header class="bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white  shadow-md py-4 fixed w-full top-0 z-10">
+    <header class="bg-gradient-to-r from-green-500 via-yellow-500 to-green-700 text-white shadow-md py-4 fixed w-full top-0 z-10">
         <div class="container mx-auto flex justify-between items-center px-6 space-x-8">
             <!-- Navigation Section -->
             <div class="flex items-center space-x-8">
                 <a href="{{ url_for('routes.home_admin') }}" class="font-bold text-xl whitespace-nowrap">Health+</a>
                 <nav class="flex space-x-6 items-center">
                     <a href="{{ url_for('routes.home_admin') }}" class="hover:underline">Home</a>
-                    <div class="relative">
-                    </div>
-                        <a href="{{ url_for('routes.database') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Database</a>
-                    <a href="{{ url_for('routes.chat_admin') }}" class="block px-4 py-2 hover:bg-blue-100 hover:underline">Chat</a>
+                    <a href="{{ url_for('routes.database') }}" class="hover:underline">Database</a>
+                    <a href="{{ url_for('routes.chat_admin') }}" class="hover:underline">Chat</a>
                 </nav>
             </div>
             <div class="relative">
                 <button id="settingsButton" class="focus:outline-none">
-                  <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
+                    <i id="settingsIcon" class="fa fa-cog text-xl cursor-pointer"></i>
                 </button>
                 <div id="settingsDropdown" class="absolute right-0 mt-2 w-48 bg-white text-blue-600 shadow-lg rounded hidden">
-                  <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
+                    <a href="{{ url_for('routes.logout') }}" class="block px-4 py-2 hover:bg-blue-100 text-red-500">Logout</a>
                 </div>
-              </div>
+            </div>
         </div>
     </header>
+
     <!-- Sidebar -->
     <div class="sidebar">
         <h3 class="sidebar-title">Contacts</h3>
         <ul class="contact-list">
             {% for user in users %}
                 <!-- Link ke URL chat_admin dengan patient_id -->
-                <li class="contact-item" style="margin-bottom: 10px;">
+                <li class="contact-item" style="margin-bottom: 7px;">
                     <a href="{{ url_for('routes.chat_admin', patient_id=user.id) }}">
                         <div class="chat-header-box" style=" color: white; padding: 8px; margin: bottom 10px;; ">
-                            <h4>{{ user.personal_data.full_name }}</h4>
+                            <h4>({{ user.personal_data.id }}){{ user.personal_data.full_name }}</h4>
                         </div>
                     </a>
                 </li>
@@ -48,7 +47,7 @@
             <h3>{{ selected_patient.personal_data.full_name }}</h3>
         </div>
 
-        <div class="chat-messages" id="chat-messages">
+        <div class="chat-messages chat-scroll" id="chat-messages">
             {% for message in messages %}
                 <div class="message-chat {{ 'sent-admin' if message.sender_id == admin_user.id else 'received' }}">
                     <p>{{ message.message }}</p>
@@ -69,30 +68,90 @@
     </div>
 </div>
 
-
 <script>
-    // Fungsi untuk memeriksa apakah ada pesan baru
-    function checkNewMessages() {
-        var currentTimestamp = new Date().toISOString(); // Ambil timestamp saat ini
-    
-        $.ajax({
-            url: '{{ url_for('routes.chat_admin') }}', // URL untuk memeriksa pesan terbaru
-            method: 'GET',
-            data: { timestamp: currentTimestamp }, // Mengirim timestamp terakhir
-            success: function(data) {
-                // Jika ada pesan baru, reload halaman untuk memperbarui pesan
-                if (data.newMessages) {
-                    location.reload();  // Refresh halaman
-                }
-            },
-            error: function(error) {
-                console.log("Error checking new messages: ", error);
+    // Simpan posisi scroll sebelum reload
+    window.addEventListener('beforeunload', function () {
+        localStorage.setItem('scrollPosition', window.scrollY);
+    })
+
+    // Kembalikan posisi scroll setelah reload
+    window.addEventListener('load', function () {
+        var scrollPosition = localStorage.getItem('scrollPosition');
+        if (scrollPosition) {
+            window.scrollTo(0, scrollPosition);
+            localStorage.removeItem('scrollPosition');
+        }
+    })
+
+    // Auto scroll ke bawah setelah pesan baru masuk
+    function scrollToBottom() {
+        var chatMessages = document.getElementById("chat-messages");
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    window.onload = scrollToBottom
+
+    async function checkReadStatus() {
+        const response = await fetch('/check_read_status');
+        const data = await response.json();
+
+        data.readMessages.forEach(message => {
+            const msgElement = document.querySelector(`[data-message-id="${message.id}"] .read-status`);
+            if (msgElement && !msgElement.classList.contains('read')) {
+                msgElement.textContent = 'Read';
+                msgElement.classList.add('read');
             }
         });
     }
-    
-    // Memanggil fungsi checkNewMessages setiap 5 detik
-    setInterval(checkNewMessages, 5000);  // Cek setiap 5 detik
-    </script>
+
+    // Jalankan setiap 2 detik untuk cek pesan yang sudah dibaca
+    setInterval(checkReadStatus, 2000);
+    // Fungsi untuk memperbarui status Read secara otomatis
+    async function updateReadStatus(messageId) {
+        const response = await fetch('/update_read_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message_id: messageId })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"] .read-status`);
+            if (messageElement) {
+                messageElement.innerText = 'Read';
+            }
+        }
+    }
+
+    // Periksa pesan baru dan perbarui status
+    async function checkMessages() {
+        const response = await fetch('/check_messages');
+        const data = await response.json();
+
+        if (data.newMessages) {
+            const chatMessages = document.getElementById("chat-messages");
+
+            data.messages.forEach(msg => {
+                const newMessage = `
+                    <div class="message-chat ${msg.sender_id == {{ current_user.id }} ? 'sent' : 'received'}" data-message-id="${msg.id}">
+                        <p>${msg.message}</p>
+                        <small>${msg.timestamp}</small><br>
+                        <span class="read-status">${msg.is_read ? 'Read' : ''}</span>
+                    </div>
+                `;
+                chatMessages.innerHTML += newMessage;
+
+                // Tandai pesan sebagai read jika sudah diterima
+                if (!msg.is_read && msg.sender_id != {{ current_user.id }}) {
+                    updateReadStatus(msg.id);
+                }
+            });
+            scrollToBottom();
+        }
+    }
+    setInterval(checkReadStatus, 1000);
+    setInterval(checkMessages, 3000);
+</script>
 
 {% endblock %}
